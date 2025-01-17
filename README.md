@@ -16,6 +16,7 @@ interactions:
 Add/remove mode:
 Student can click a stack area to add, click-drag to remove
 Open to suggestions on these if another gesture would work better
+
 Compare mode:
 Student can tap to start a line and tap to end. The in-progress drag shows a line from the starting location to the mouse/finger. This interaction is constrained to the top or bottom of the stack. If they try to start outside one of those zones, discard
 If they try to start on one that’s already connected, discard
