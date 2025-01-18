@@ -1,8 +1,13 @@
 
 import Image from "next/image";
 import ControlPanel from "./components/ControlPanel";
-import Blocks from "./components/Blocks";
+// import Blocks from "./components/Blocks";
 import { LeftBoxProvider } from './context/left-box-context';
+import { RightBoxProvider } from './context/right-box-context';
+import RightColumn from './components/RightColumn';
+import LeftColumn  from './components/LeftColumn';
+// import Container from './components/Container';
+
 
 export default function Home() {
   return (
@@ -17,16 +22,18 @@ export default function Home() {
           priority
         />
         <LeftBoxProvider>
-          <div className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-            <Blocks />
-          </div>
-          <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <ControlPanel></ControlPanel>
-          </div>
+        <RightBoxProvider>
+        <div className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
+             <RightColumn />
+             <LeftColumn />
+            </div>
+            <div className="flex gap-4 items-center flex-col sm:flex-row">
+            <ControlPanel />
+        </div>
+        </RightBoxProvider>
         </LeftBoxProvider>
-
+        <div></div>
       </main>
-      
     </div>
   );
 }

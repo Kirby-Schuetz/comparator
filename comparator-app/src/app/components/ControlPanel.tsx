@@ -4,13 +4,18 @@ import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { useState } from "react";
 import { useLeftBox } from '../context/left-box-context';
+import { useRightBox } from '../context/right-box-context';
+import { RightColumn } from './RightColumn';
+import { LeftColumm } from './LeftColumn';
 import Blocks from "./Blocks";
 
-export default function ExitAnimation(): JSX.Element {
+export default function ControlPanel(): JSX.Element {
     const [isVisible, setIsVisible] = useState<boolean>(true);
     // const [column1Blocks, setColumn1Blocks] = useState<number>(0);
-    const [column2Blocks, setColumn2Blocks] = useState<number>(0);
-    const {state} = useLeftBox();
+    // const [column2Blocks, setColumn2Blocks] = useState<number>(0);
+    const {leftState} = useLeftBox();
+    const {rightState} = useRightBox();
+    
     const handleColumn1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
       let value = Number(e.target.value);
       setColumn1Blocks(Math.min(Math.max(0, value), 10));
@@ -41,27 +46,29 @@ export default function ExitAnimation(): JSX.Element {
                         <div style={controlContent}>
                           <div style={column}>
                             <label style={label} htmlFor="column1Input">
-                              Column 1 (Blocks: {state.count})
+                              Column 1
                             </label>
                             <input
                               id="column1Input"
                               type="text"
-                              value={state.count}
+                              value={leftState.count}
                               onChange={handleColumn1Change}
                               style={input}
                               min={0}
                               max={10}
                               placeholder="Enter number of blocks"
                             />
-                          </div>
+                            </div>
+                            </div>
+                          <div style={controlContent}>
                           <div style={column}>
                             <label style={label} htmlFor="column2Input">
-                              Column 2 (Blocks: {column2Blocks})
+                              Column 2
                             </label>
                             <input
                               id="column2Input"
                               type="text"
-                              value={column2Blocks}
+                              value={rightState.count}
                               onChange={handleColumn2Change}
                               style={input}
                               min={0}

@@ -8,16 +8,16 @@ type State = { count: number };
 type LeftBoxProviderProps = { children: React.ReactNode };
 
 const LeftBoxStateContext = React.createContext<
-    { state: State; dispatch: Dispatch } | undefined
+    { leftState: State; leftDispatch: Dispatch } | undefined
 >(undefined);
 
-function leftBoxReducer(state: State, action: Action) {
+function leftBoxReducer(leftState: State, action: Action) {
     switch (action.type) {
         case 'increment': {
-            return { count: state.count + 1 }
+            return { count: leftState.count + 1 }
         }
         case 'decrement': {
-            return { count: state.count - 1 }
+            return { count: leftState.count - 1 }
         }
         default: {
             throw new Error(`Unhandled action type: ${action.type}`);
@@ -26,9 +26,9 @@ function leftBoxReducer(state: State, action: Action) {
 }
 
 function LeftBoxProvider({ children }: LeftBoxProviderProps) {
-    const [ state, dispatch ] = React.useReducer(leftBoxReducer, { count: 0 });
+    const [ leftState, leftDispatch ] = React.useReducer(leftBoxReducer, { count: 0 });
 
-    const value = { state, dispatch };
+    const value = { leftState, leftDispatch };
     return (
         <LeftBoxStateContext.Provider value={value}>
             {children}

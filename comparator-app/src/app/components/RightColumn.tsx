@@ -1,16 +1,18 @@
+// right column container
+// onClick adding box
+// box positioning
+// drag remove box
+// repositioning boxes after removing a box
+// tracking individual box count
+
 "use client";
 
 import * as motion from "motion/react-client";
 import { useState, useRef } from "react";
-import { useLeftBox } from '../context/left-box-context';
 import { useRightBox } from '../context/right-box-context';
 
-
-// THIS WILL EVENTUALLY JUST CONTAIN BOXES SHAPE AND BEHAVIOR 
-
-export default function Blocks() {
+export default function RightColumn() {
   const [boxes, setBoxes] = useState<{ id: string; x: number; y: number }[]>([]);
-  const {leftState, leftDispatch} = useLeftBox();
   const {rightState, rightDispatch} = useRightBox();
 
   const constraintsRef = useRef<HTMLDivElement>(null);
@@ -21,37 +23,32 @@ export default function Blocks() {
   const COLUMN_WIDTH = BOX_WIDTH * 2.5; 
   const CONTAINER_HEIGHT = 520; 
 
-  const increment = (column: "left" | "right") => {
-    if (column === "left") leftDispatch({ type: 'increment' });
-    if (column === "right") rightDispatch({ type: 'increment' });
-
+  const increment = () => {
+    rightDispatch({ type: 'increment' });
   }
 
-  const decrement = (column: "left" | "right") => {
-    if (column === "left") leftDispatch({ type: 'decrement' });
-    if (column === "right") rightDispatch({ type: 'decrement' });
-
+  const decrement = () => {
+    rightDispatch({ type: 'decrement' });
   }
 
-  const handleDoubleClick = (column: "left" | "right") => {
-    if (boxes.length >= 20) return; 
+  const handleDoubleClick = () => {
+    if (boxes.length >= 10) return; 
     
 //  * Generates box ID
     const newId = boxes.length.toString();
     
 //  * Counts boxes in each column
-    const leftColumnCount = leftState.count;
     const rightColumnCount = rightState.count;
     
     let newX: number;
     let newY: number;
 
 //  * Positions new box
-    if (column === "left" && leftColumnCount < 10) {
+    if (rightColumnCount < 10) {
       newX = 0;
       increment();
-      newY = CONTAINER_HEIGHT - (state.count) * (BOX_WIDTH + SPACING);
-    } else if (column === "right" && rightColumnCount < 10) {
+      newY = CONTAINER_HEIGHT - (rightState.count) * (BOX_WIDTH + SPACING);
+    } else if (rightColumnCount < 10) {
       newX = COLUMN_WIDTH; 
       newY = CONTAINER_HEIGHT - (rightColumnCount + 1) * (BOX_WIDTH + SPACING);
     } else {
@@ -78,16 +75,11 @@ export default function Blocks() {
 //    * Removes box if dragged outside of the container
     if (isOutside) {
       const updatedBoxes = boxes.filter(box => box.id !== boxId);
-      const leftColumnBoxes = updatedBoxes.filter(box => box.x === 0);
-      const rightColumnBoxes = updatedBoxes.filter(box => box.x === COLUMN_WIDTH);
+      const rightColumnBoxes = updatedBoxes.filter(box => box.x === 0);
       decrement();
 
-      //    * Repositions boxes starting from the bottom when one is removed
+//    * Repositions boxes starting from the bottom when one is removed
       const repositionedBoxes = [
-        ...leftColumnBoxes.map((box, index) => ({
-          ...box,
-          y: CONTAINER_HEIGHT - (index + 1) * (BOX_WIDTH + SPACING),
-        })),
         ...rightColumnBoxes.map((box, index) => ({
           ...box,
           y: CONTAINER_HEIGHT - (index + 1) * (BOX_WIDTH + SPACING),
@@ -104,11 +96,7 @@ export default function Blocks() {
       style={constraints}
     >
       <div 
-        onDoubleClick={() => handleDoubleClick("left")}
-        style={{ width: COLUMN_WIDTH, height: "100%", float: "left" }}
-      />
-      <div 
-        onDoubleClick={() => handleDoubleClick("right")}
+        onDoubleClick={() => handleDoubleClick()}
         style={{ width: COLUMN_WIDTH, height: "100%", float: "right" }}
       />
       
@@ -121,7 +109,7 @@ export default function Blocks() {
           onDragEnd={(event, info) => handleDragEnd(event, info, box.id)}
           style={{
             ...boxStyle,
-            left: `${box.x}px`,
+            right: `${box.x}px`,
             top: `${box.y}px`,
           }}
         />
@@ -146,4 +134,3 @@ const boxStyle = {
   position: "absolute" as const,
   cursor: 'grab',
 };
-
