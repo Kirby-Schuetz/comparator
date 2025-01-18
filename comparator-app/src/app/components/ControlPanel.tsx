@@ -3,13 +3,14 @@
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { useState } from "react";
+import { useLeftBox } from '../context/left-box-context';
 import Blocks from "./Blocks";
 
 export default function ExitAnimation(): JSX.Element {
     const [isVisible, setIsVisible] = useState<boolean>(true);
-    const [column1Blocks, setColumn1Blocks] = useState<number>(0);
+    // const [column1Blocks, setColumn1Blocks] = useState<number>(0);
     const [column2Blocks, setColumn2Blocks] = useState<number>(0);
-
+    const {state} = useLeftBox();
     const handleColumn1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
       let value = Number(e.target.value);
       setColumn1Blocks(Math.min(Math.max(0, value), 10));
@@ -40,12 +41,12 @@ export default function ExitAnimation(): JSX.Element {
                         <div style={controlContent}>
                           <div style={column}>
                             <label style={label} htmlFor="column1Input">
-                              Column 1 (Blocks: {column1Blocks})
+                              Column 1 (Blocks: {state.count})
                             </label>
                             <input
                               id="column1Input"
                               type="text"
-                              value={column1Blocks}
+                              value={state.count}
                               onChange={handleColumn1Change}
                               style={input}
                               min={0}

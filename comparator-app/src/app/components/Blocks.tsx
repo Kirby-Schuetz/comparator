@@ -2,9 +2,11 @@
 
 import * as motion from "motion/react-client";
 import { useState, useRef } from "react";
+import { useLeftBox } from '../context/left-box-context';
 
 export default function Blocks() {
   const [boxes, setBoxes] = useState<{ id: string; x: number; y: number }[]>([]);
+  const {state, dispatch} = useLeftBox();
   const constraintsRef = useRef<HTMLDivElement>(null);
 
   const SPACING = 12; // 1/3 cm = ~12px
@@ -13,20 +15,32 @@ export default function Blocks() {
   const COLUMN_WIDTH = BOX_WIDTH * 2.5; 
   const CONTAINER_HEIGHT = 520; 
 
+  const increment = () => {
+    dispatch({ type: 'increment' });
+  }
+
+  const decrement = () => {
+    dispatch({ type: 'decrement' });
+  }
+
   const handleDoubleClick = (column: "left" | "right") => {
     if (boxes.length >= 20) return; 
     
+//  * Generates box ID
     const newId = boxes.length.toString();
     
-    const leftColumnCount = boxes.filter(box => box.x === 0).length;
+//  * Counts boxes in each column
+    const leftColumnCount = state.count;
     const rightColumnCount = boxes.filter(box => box.x === COLUMN_WIDTH).length;
     
     let newX: number;
     let newY: number;
 
+//  * Positions new box
     if (column === "left" && leftColumnCount < 10) {
       newX = 0;
-      newY = CONTAINER_HEIGHT - (leftColumnCount + 1) * (BOX_WIDTH + SPACING);
+      increment();
+      newY = CONTAINER_HEIGHT - (state.count) * (BOX_WIDTH + SPACING);
     } else if (column === "right" && rightColumnCount < 10) {
       newX = COLUMN_WIDTH; 
       newY = CONTAINER_HEIGHT - (rightColumnCount + 1) * (BOX_WIDTH + SPACING);
@@ -38,6 +52,8 @@ export default function Blocks() {
   };
 
   const handleDragEnd = (event: any, info: any, boxId: string) => {
+
+//  * Container boundaries
     const container = constraintsRef.current?.getBoundingClientRect();
     if (!container) return;
 
@@ -55,7 +71,7 @@ export default function Blocks() {
 
       const leftColumnBoxes = updatedBoxes.filter(box => box.x === 0);
       const rightColumnBoxes = updatedBoxes.filter(box => box.x === COLUMN_WIDTH);
-    
+      decrement();
 //    * Repositions boxes starting from the bottom when one is removed
       const repositionedBoxes = [
         ...leftColumnBoxes.map((box, index) => ({
@@ -103,6 +119,7 @@ export default function Blocks() {
     </motion.div>
   );
 }
+
 
 const constraints = {
   width: 212, 

@@ -2,7 +2,7 @@
 import Image from "next/image";
 import ControlPanel from "./components/ControlPanel";
 import Blocks from "./components/Blocks";
-
+import { LeftBoxProvider } from './context/left-box-context';
 
 export default function Home() {
   return (
@@ -16,12 +16,14 @@ export default function Home() {
           height={38}
           priority
         />
-        <div className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-            <Blocks></Blocks>
-        </div>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-        <ControlPanel></ControlPanel>
-        </div>
+        <LeftBoxProvider>
+          <div className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
+            <Blocks />
+          </div>
+          <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <ControlPanel></ControlPanel>
+          </div>
+        </LeftBoxProvider>
 
       </main>
       
