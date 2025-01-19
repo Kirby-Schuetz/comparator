@@ -7,55 +7,115 @@
 
 "use client";
 
-import * as motion from "motion/react-client";
-import { useState, useRef } from "react";
+import { motion, PanInfo } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
 import { useRightBox } from "../context/right-box-context";
-import ColumnContainer from "./ColumnContainer";
 
-export default function RightColumn() {
-  const [boxes, setBoxes] = useState<{ id: string; x: number; y: number }[]>(
-    []
-  );
+// BoxID and positioning
+interface Box {
+  id: string;
+  x: number;
+  y: number;
+}
+
+// Configuration
+const CONFIG = {
+  SPACING: 12, // 1/3 cm = ~12px
+  BOX_WIDTH: 40,
+  MAX_BOXES: 10,
+  CONTAINER_HEIGHT: 520,
+  CONTAINER_WIDTH: 80,
+} as const;
+
+// Styles
+const styles = {
+  container: {
+    width: CONFIG.CONTAINER_WIDTH,
+    height: CONFIG.CONTAINER_HEIGHT,
+    borderRadius: 5,
+    position: "relative" as const,
+    marginBottom: 0,
+  },
+  column: {
+    width: CONFIG.BOX_WIDTH,
+    height: "100%",
+    float: "right" as const,
+    backgroundColor: "rgba(0,0,0,0.1)",
+    borderRadius: 5,
+  },
+  box: {
+    width: CONFIG.BOX_WIDTH,
+    height: CONFIG.BOX_WIDTH,
+    backgroundColor: "#ff0088",
+    borderRadius: 0,
+    position: "absolute" as const,
+    cursor: "grab",
+  },
+};
+
+function useBoxManagement() {
+  const [boxes, setBoxes] = useState<Box[]>([]);
   const { rightState, rightDispatch } = useRightBox();
 
-  const constraintsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const desiredCount = Math.min(Math.max(0, rightState.count), CONFIG.MAX_BOXES);
+    const currentCount = boxes.length;
+    
+    if (desiredCount > currentCount) {
+      // Add boxes
+      const newBoxes = [...boxes];
+      for (let i = currentCount; i < desiredCount; i++) {
+        newBoxes.push({
+          id: crypto.randomUUID(),
+          x: 0,
+          y: CONFIG.CONTAINER_HEIGHT - (i + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING)
+        });
+      }
+      setBoxes(newBoxes);
+    } else if (desiredCount < currentCount) {
+      // Remove boxes from the top
+      const newBoxes = boxes.slice(0,desiredCount);
+      // Reposition remaining boxes
+      const repositionedBoxes = newBoxes.map((box, index) => ({
+        ...box,
+        y: CONFIG.CONTAINER_HEIGHT - (index + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING),
+      }));
+      setBoxes(repositionedBoxes);
+    }
+  }, [rightState.count]);
 
-  const SPACING = 12; // 1/3 cm = ~12px
-  const BOX_WIDTH = 40;
-
-  const COLUMN_WIDTH = BOX_WIDTH;
-  const CONTAINER_HEIGHT = 520;
-
-  const increment = () => {
+  const addBox = () => {
+    if (boxes.length >= CONFIG.MAX_BOXES) return;
+    
+    const newId = crypto.randomUUID();
+    const newY = CONFIG.CONTAINER_HEIGHT - (rightState.count + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
+    
+    setBoxes([...boxes, { id: newId, x: 0, y: newY }]);
     rightDispatch({ type: "increment" });
+    // Checks if max boxes is reached
+    // Positions the new box
+    // Updates state and context
   };
 
-  const decrement = () => {
+  const removeBox = (boxId: string) => {
+    const updatedBoxes = boxes.filter(box => box.id !== boxId);
+    const rightColumnBoxes = updatedBoxes.filter(box => box.x === 0);
+
+    const repositionedBoxes = rightColumnBoxes.map((box, index) => ({
+      ...box,
+      y: CONFIG.CONTAINER_HEIGHT - (index + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING),
+    }));
+    // Repositions the boxes
+    setBoxes(repositionedBoxes);
     rightDispatch({ type: "decrement" });
   };
 
-  const handleDoubleClick = () => {
-    if (boxes.length >= 10) return;
+  return { boxes, addBox, removeBox };
+}
 
-    // Generate unique ID using timestamp + random number
-    const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    const rightColumnCount = rightState.count;
-
-    let newX: number;
-    let newY: number;
-
-    // Fix logic for column positioning
-    if (rightColumnCount < 10) {
-      newX = 0;
-      newY = CONTAINER_HEIGHT - (rightColumnCount + 1) * (BOX_WIDTH + SPACING);
-      increment();
-    } else {
-      return;
-    }
-
-    setBoxes([...boxes, { id: newId, x: newX, y: newY }]);
-  };
+export default function RightColumn() {
+  const constraintsRef = useRef<HTMLDivElement>(null);
+  const { boxes, addBox, removeBox } = useBoxManagement();
 
   const handleDragEnd = (
     event: MouseEvent | TouchEvent | PointerEvent,
@@ -75,37 +135,15 @@ export default function RightColumn() {
       draggedRect.bottom > container.bottom;
 
     if (isOutside) {
-      // Find the box being removed to check its column
-      const removedBox = boxes.find((box) => box.id === boxId);
-      if (removedBox?.x === 0) {
-        decrement();
-      }
-
-      const updatedBoxes = boxes.filter((box) => box.id !== boxId);
-      const rightColumnBoxes = updatedBoxes.filter((box) => box.x === 0);
-
-      // Reposition remaining boxes
-      const repositionedBoxes = rightColumnBoxes.map((box, index) => ({
-        ...box,
-        y: CONTAINER_HEIGHT - (index + 1) * (BOX_WIDTH + SPACING),
-      }));
-
-      setBoxes(repositionedBoxes);
+      removeBox(boxId);
     }
+    // Checks if box is outside the container
+    // Removes the box if it is
   };
 
   return (
-    <motion.div ref={constraintsRef} style={constraints}>
-      <div
-        onDoubleClick={() => handleDoubleClick()}
-        style={{ 
-          width: COLUMN_WIDTH, 
-          height: "100%", 
-          float: "right",
-          backgroundColor: "rgba(0,0,0,0.1)",
-          borderRadius: 5,
-         }}
-      />
+    <motion.div ref={constraintsRef} style={styles.container}>
+      <div onDoubleClick={addBox} style={styles.column} />
 
       {boxes.map((box) => (
         <motion.div
@@ -115,29 +153,14 @@ export default function RightColumn() {
           dragElastic={0.2}
           onDragEnd={(event, info) => handleDragEnd(event, info, box.id)}
           style={{
-            ...boxStyle,
+            ...styles.box,
             right: `${box.x}px`,
             top: `${box.y}px`,
           }}
+          // Renders interactive boxes with drag capabilities
+          // Maintains container constraints
         />
       ))}
     </motion.div>
   );
 }
-
-const constraints = {
-  width: 80,
-  height: 520,
-  borderRadius: 5,
-  position: "relative" as const,
-  marginBotton: 0,
-};
-
-const boxStyle = {
-  width: 40,
-  height: 40,
-  backgroundColor: "#ff0088",
-  borderRadius: 0,
-  position: "absolute" as const,
-  cursor: "grab",
-};

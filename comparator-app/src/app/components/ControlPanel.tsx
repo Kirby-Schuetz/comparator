@@ -2,34 +2,24 @@
 
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
-import { useState } from "react";
+import { useState, ReactElement } from "react";
 import { useLeftBox } from "../context/left-box-context";
 import { useRightBox } from "../context/right-box-context";
-import { RightColumn } from "./RightColumn";
-import { LeftColumm } from "./LeftColumn";
-import Blocks from "./Blocks";
 
-export default function ControlPanel(): JSX.Element {
+
+const ControlPanel = (): ReactElement => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
-  // const [column1Blocks, setColumn1Blocks] = useState<number>(0);
-  // const [column2Blocks, setColumn2Blocks] = useState<number>(0);
-  const { leftState } = useLeftBox();
-  const { rightState } = useRightBox();
+  const { leftState, leftDispatch } = useLeftBox();
+  const { rightState, rightDispatch } = useRightBox();
 
   const handleColumn1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = Number(e.target.value);
-    setColumn1Blocks(Math.min(Math.max(0, value), 10));
+    const value = Math.min(Math.max(0, Number(e.target.value)), 10);
+    leftDispatch({ type: 'setCount', count: value });
   };
 
   const handleColumn2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = Number(e.target.value);
-    setColumn2Blocks(Math.min(Math.max(0, value), 10));
-  };
-
-  // Callback to update control panel when blocks are added/removed via drag
-  const handleBlocksUpdate = (col1Count: number, col2Count: number) => {
-    setColumn1Blocks(col1Count);
-    setColumn2Blocks(col2Count);
+    const value = Math.min(Math.max(0, Number(e.target.value)), 10);
+    rightDispatch({ type: 'setCount', count: value });
   };
 
   return (
@@ -146,3 +136,5 @@ const input: React.CSSProperties = {
   border: "1px solid #ccc",
   width: "80px",
 };
+
+export default ControlPanel;

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-type Action = { type: 'increment' } | { type: 'decrement' };
+type Action = { type: 'increment' } | { type: 'decrement' } | { type: 'setCount', count: number };
 type Dispatch = (action: Action) => void;
 type State = { count: number };
 type RightBoxProviderProps = { children: React.ReactNode };
@@ -18,6 +18,9 @@ function rightBoxReducer(rightState: State, action: Action) {
         }
         case 'decrement': {
             return { count: rightState.count - 1 }
+        }
+        case 'setCount': {
+            return { count: action.count }
         }
         default: {
             throw new Error(`Unhandled action type: ${action.type}`);

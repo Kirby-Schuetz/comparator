@@ -20,9 +20,7 @@ export default function Home() {
         <LeftBoxProvider>
           <RightBoxProvider>
             <div>
-              <ColumnContainer>
-                <div></div>
-              </ColumnContainer>
+              <ColumnContainer />
             </div>
             <div>
               <ControlPanel />
