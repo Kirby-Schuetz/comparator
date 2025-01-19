@@ -7,10 +7,9 @@
 
 "use client";
 
-import * as motion from "motion/react-client";
+import { motion, PanInfo } from "framer-motion";
 import { useState, useRef } from "react";
 import { useLeftBox } from "../context/left-box-context";
-import Container from "./Container";
 
 export default function LeftColumn() {
   const [boxes, setBoxes] = useState<{ id: string; x: number; y: number }[]>(
@@ -23,8 +22,9 @@ export default function LeftColumn() {
   const SPACING = 12; // 1/3 cm = ~12px
   const BOX_WIDTH = 40;
 
-  const COLUMN_WIDTH = BOX_WIDTH * 2.5;
+  const COLUMN_WIDTH = BOX_WIDTH;
   const CONTAINER_HEIGHT = 520;
+  
 
   const increment = () => {
     leftDispatch({ type: "increment" });
@@ -37,23 +37,19 @@ export default function LeftColumn() {
   const handleDoubleClick = () => {
     if (boxes.length >= 10) return;
 
-    //  * Generates box ID
-    const newId = boxes.length.toString();
+    // Generate unique ID using timestamp + random number
+    const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    //  * Counts boxes in each column
     const leftColumnCount = leftState.count;
 
     let newX: number;
     let newY: number;
 
-    //  * Positions new box
+    // Fix logic for column positioning
     if (leftColumnCount < 10) {
       newX = 0;
-      increment();
-      newY = CONTAINER_HEIGHT - leftState.count * (BOX_WIDTH + SPACING);
-    } else if (leftColumnCount < 10) {
-      newX = COLUMN_WIDTH;
       newY = CONTAINER_HEIGHT - (leftColumnCount + 1) * (BOX_WIDTH + SPACING);
+      increment();
     } else {
       return;
     }
@@ -61,12 +57,16 @@ export default function LeftColumn() {
     setBoxes([...boxes, { id: newId, x: newX, y: newY }]);
   };
 
-  const handleDragEnd = (event: any, info: any, boxId: string) => {
-    //  * Container boundaries
+  const handleDragEnd = (
+    event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+    boxId: string
+  ) => {
     const container = constraintsRef.current?.getBoundingClientRect();
     if (!container) return;
 
-    const draggedRect = event.target.getBoundingClientRect();
+    const target = event.target as HTMLElement;
+    const draggedRect = target.getBoundingClientRect();
 
     const isOutside =
       draggedRect.left < container.left ||
@@ -74,19 +74,21 @@ export default function LeftColumn() {
       draggedRect.top < container.top ||
       draggedRect.bottom > container.bottom;
 
-    //    * Removes box if dragged outside of the container
     if (isOutside) {
+      // Find the box being removed to check its column
+      const removedBox = boxes.find((box) => box.id === boxId);
+      if (removedBox?.x === 0) {
+        decrement();
+      }
+
       const updatedBoxes = boxes.filter((box) => box.id !== boxId);
       const leftColumnBoxes = updatedBoxes.filter((box) => box.x === 0);
-      decrement();
 
-      //    * Repositions boxes starting from the bottom when one is removed
-      const repositionedBoxes = [
-        ...leftColumnBoxes.map((box, index) => ({
-          ...box,
-          y: CONTAINER_HEIGHT - (index + 1) * (BOX_WIDTH + SPACING),
-        })),
-      ];
+      // Reposition remaining boxes
+      const repositionedBoxes = leftColumnBoxes.map((box, index) => ({
+        ...box,
+        y: CONTAINER_HEIGHT - (index + 1) * (BOX_WIDTH + SPACING),
+      }));
 
       setBoxes(repositionedBoxes);
     }
@@ -96,7 +98,13 @@ export default function LeftColumn() {
     <motion.div ref={constraintsRef} style={constraints}>
       <div
         onDoubleClick={() => handleDoubleClick()}
-        style={{ width: COLUMN_WIDTH, height: "100%", float: "right" }}
+        style={{ 
+          width: COLUMN_WIDTH, 
+          height: "100%", 
+          float: "right",
+          backgroundColor: "rgba(0,0,0,0.1)",
+          borderRadius: 5,
+         }}
       />
 
       {boxes.map((box) => (
@@ -118,10 +126,11 @@ export default function LeftColumn() {
 }
 
 const constraints = {
-  width: 212,
+  width: 80,
   height: 520,
-  borderRadius: 10,
+  borderRadius: 5,
   position: "relative" as const,
+  marginBottom: 0,
 };
 
 const boxStyle = {

@@ -3,7 +3,7 @@ import ControlPanel from "./components/ControlPanel";
 // import Blocks from "./components/Blocks";
 import { LeftBoxProvider } from "./context/left-box-context";
 import { RightBoxProvider } from "./context/right-box-context";
-import Container from "./components/Container";
+import ColumnContainer from "./components/ColumnContainer";
 
 export default function Home() {
   return (
@@ -20,9 +20,9 @@ export default function Home() {
         <LeftBoxProvider>
           <RightBoxProvider>
             <div>
-              <Container>
+              <ColumnContainer>
                 <div></div>
-              </Container>
+              </ColumnContainer>
             </div>
             <div>
               <ControlPanel />
