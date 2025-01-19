@@ -1,51 +1,72 @@
+// left column container
+// onClick adding box
+// box positioning
+// drag remove box
+// repositioning boxes after removing a box
+// tracking individual box count
+
 "use client";
 
 import * as motion from "motion/react-client";
 import { useState, useRef } from "react";
 import { useLeftBox } from "../context/left-box-context";
-
-type Box = {
-  id: string;
-  x: number;
-  y: number;
-};
+import Container from "./Container";
 
 export default function LeftColumn() {
-  const [boxes, setBoxes] = useState<Box[]>([]);
+  const [boxes, setBoxes] = useState<{ id: string; x: number; y: number }[]>(
+    []
+  );
   const { leftState, leftDispatch } = useLeftBox();
 
   const constraintsRef = useRef<HTMLDivElement>(null);
 
-  const SPACING = 12; // Spacing between boxes
-  const BOX_SIZE = 40; // Width and height of a box
-  const CONTAINER_HEIGHT = 520; // Height of the container
+  const SPACING = 12; // 1/3 cm = ~12px
+  const BOX_WIDTH = 40;
 
-  // Dispatch helpers
-  const increment = () => leftDispatch({ type: "increment" });
-  const decrement = () => leftDispatch({ type: "decrement" });
+  const COLUMN_WIDTH = BOX_WIDTH * 2.5;
+  const CONTAINER_HEIGHT = 520;
 
-  // Handles double-click to add a new box
-  const handleDoubleClick = () => {
-    if (boxes.length >= 10) return; // Limit to 10 boxes
-
-    const newId = `${boxes.length}`; // Unique ID for each box
-    const newY = CONTAINER_HEIGHT - (leftState.count + 1) * (BOX_SIZE + SPACING);
-
-    setBoxes((prev) => [
-      ...prev,
-      { id: newId, x: 0, y: Math.max(newY, 0) }, // Add new box at the correct position
-    ]);
-
-    increment();
+  const increment = () => {
+    leftDispatch({ type: "increment" });
   };
 
-  // Handles box drag end event
-  const handleDragEnd = (event: MouseEvent | TouchEvent, boxId: string) => {
-    const container = constraintsRef.current?.getBoundingClientRect();
-    const draggedBox = event.target as HTMLElement;
-    const draggedRect = draggedBox.getBoundingClientRect();
+  const decrement = () => {
+    leftDispatch({ type: "decrement" });
+  };
 
+  const handleDoubleClick = () => {
+    if (boxes.length >= 10) return;
+
+    //  * Generates box ID
+    const newId = boxes.length.toString();
+
+    //  * Counts boxes in each column
+    const leftColumnCount = leftState.count;
+
+    let newX: number;
+    let newY: number;
+
+    //  * Positions new box
+    if (leftColumnCount < 10) {
+      newX = 0;
+      increment();
+      newY = CONTAINER_HEIGHT - leftState.count * (BOX_WIDTH + SPACING);
+    } else if (leftColumnCount < 10) {
+      newX = COLUMN_WIDTH;
+      newY = CONTAINER_HEIGHT - (leftColumnCount + 1) * (BOX_WIDTH + SPACING);
+    } else {
+      return;
+    }
+
+    setBoxes([...boxes, { id: newId, x: newX, y: newY }]);
+  };
+
+  const handleDragEnd = (event: any, info: any, boxId: string) => {
+    //  * Container boundaries
+    const container = constraintsRef.current?.getBoundingClientRect();
     if (!container) return;
+
+    const draggedRect = event.target.getBoundingClientRect();
 
     const isOutside =
       draggedRect.left < container.left ||
@@ -53,37 +74,41 @@ export default function LeftColumn() {
       draggedRect.top < container.top ||
       draggedRect.bottom > container.bottom;
 
+    //    * Removes box if dragged outside of the container
     if (isOutside) {
-      // Remove the box
-      setBoxes((prev) => {
-        const updatedBoxes = prev.filter((box) => box.id !== boxId);
-        const repositionedBoxes = updatedBoxes.map((box, index) => ({
-          ...box,
-          y: CONTAINER_HEIGHT - (index + 1) * (BOX_SIZE + SPACING),
-        }));
+      const updatedBoxes = boxes.filter((box) => box.id !== boxId);
+      const leftColumnBoxes = updatedBoxes.filter((box) => box.x === 0);
+      decrement();
 
-        decrement();
-        return repositionedBoxes;
-      });
+      //    * Repositions boxes starting from the bottom when one is removed
+      const repositionedBoxes = [
+        ...leftColumnBoxes.map((box, index) => ({
+          ...box,
+          y: CONTAINER_HEIGHT - (index + 1) * (BOX_WIDTH + SPACING),
+        })),
+      ];
+
+      setBoxes(repositionedBoxes);
     }
   };
 
   return (
-    <motion.div
-      ref={constraintsRef}
-      style={containerStyle}
-      onDoubleClick={handleDoubleClick}
-    >
+    <motion.div ref={constraintsRef} style={constraints}>
+      <div
+        onDoubleClick={() => handleDoubleClick()}
+        style={{ width: COLUMN_WIDTH, height: "100%", float: "right" }}
+      />
+
       {boxes.map((box) => (
         <motion.div
           key={box.id}
           drag
           dragConstraints={constraintsRef}
           dragElastic={0.2}
-          onDragEnd={(event) => handleDragEnd(event, box.id)}
+          onDragEnd={(event, info) => handleDragEnd(event, info, box.id)}
           style={{
             ...boxStyle,
-            left: `${box.x}px`,
+            right: `${box.x}px`,
             top: `${box.y}px`,
           }}
         />
@@ -92,21 +117,18 @@ export default function LeftColumn() {
   );
 }
 
-// Styles
-const containerStyle: React.CSSProperties = {
-  width: 212, // Width for the column
-  height: 520, // Height for the column
+const constraints = {
+  width: 212,
+  height: 520,
   borderRadius: 10,
-  position: "relative",
-  backgroundColor: "#f0f0f0", 
-  overflow: "hidden",
+  position: "relative" as const,
 };
 
-const boxStyle: React.CSSProperties = {
+const boxStyle = {
   width: 40,
   height: 40,
   backgroundColor: "#ff0088",
   borderRadius: 0,
-  position: "absolute",
+  position: "absolute" as const,
   cursor: "grab",
 };
