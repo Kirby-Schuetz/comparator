@@ -5,21 +5,22 @@ import * as motion from "motion/react-client";
 import { useState, ReactElement } from "react";
 import { useLeftBox } from "../context/left-box-context";
 import { useRightBox } from "../context/right-box-context";
-
+import { useConnections } from "../context/connection-context";
 
 const ControlPanel = (): ReactElement => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const { leftState, leftDispatch } = useLeftBox();
   const { rightState, rightDispatch } = useRightBox();
+  const { showConnections, setShowConnections } = useConnections();
 
   const handleColumn1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Math.max(0, Number(e.target.value)), 10);
-    leftDispatch({ type: 'setCount', count: value });
+    leftDispatch({ type: "setCount", count: value });
   };
 
   const handleColumn2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Math.max(0, Number(e.target.value)), 10);
-    rightDispatch({ type: 'setCount', count: value });
+    rightDispatch({ type: "setCount", count: value });
   };
 
   return (
@@ -65,6 +66,12 @@ const ControlPanel = (): ReactElement => {
                   max={10}
                   placeholder="Enter number of blocks"
                 />
+                <button
+                  onClick={() => setShowConnections(!showConnections)}
+                  className="control-button"
+                >
+                  {showConnections ? "Hide Connections" : "Show Connections"}
+                </button>
               </div>
             </div>
           </motion.div>
@@ -79,7 +86,7 @@ const ControlPanel = (): ReactElement => {
       </motion.button>
     </div>
   );
-}
+};
 
 const container: React.CSSProperties = {
   display: "flex",

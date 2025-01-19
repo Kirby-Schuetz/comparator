@@ -4,6 +4,7 @@ import ControlPanel from "./components/ControlPanel";
 import { LeftBoxProvider } from "./context/left-box-context";
 import { RightBoxProvider } from "./context/right-box-context";
 import ColumnContainer from "./components/ColumnContainer";
+import { ConnectionProvider } from "./context/connection-context";
 
 export default function Home() {
   return (
@@ -19,12 +20,14 @@ export default function Home() {
         />
         <LeftBoxProvider>
           <RightBoxProvider>
-            <div>
-              <ColumnContainer />
-            </div>
-            <div>
-              <ControlPanel />
-            </div>
+            <ConnectionProvider>
+              <div>
+                <ColumnContainer />
+              </div>
+              <div>
+                <ControlPanel />
+              </div>
+            </ConnectionProvider>
           </RightBoxProvider>
         </LeftBoxProvider>
         <div></div>

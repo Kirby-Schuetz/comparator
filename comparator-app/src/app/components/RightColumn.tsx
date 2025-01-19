@@ -10,12 +10,20 @@
 import { motion, PanInfo } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { useRightBox } from "../context/right-box-context";
-
+import { useConnections } from "../context/connection-context";
 // BoxID and positioning
 interface Box {
   id: string;
   x: number;
   y: number;
+  points?: number;
+}
+
+interface ConnectionPoint {
+  x: number;
+  y: number;
+  type: 'top' | 'bottom';
+  columnId: string;
 }
 
 // Configuration
@@ -56,6 +64,48 @@ const styles = {
 function useBoxManagement() {
   const [boxes, setBoxes] = useState<Box[]>([]);
   const { rightState, rightDispatch } = useRightBox();
+  const { updateConnectionPoint } = useConnections();
+  
+  // Updated points calculation to be more explicit
+  const updateBoxPoints = (boxArray: Box[]): Box[] => {
+    if (boxArray.length === 0) return [];
+    return boxArray.map((box, index) => ({
+      ...box,
+      points: index === 0 ? 10 : // top box gets 10 points
+             index === boxArray.length - 1 ? 1 : // bottom box gets 1 point
+             undefined // middle boxes get no points
+    }));
+  };
+
+  useEffect(() => {
+    if (boxes.length === 0) {
+      updateConnectionPoint([]);
+      return;
+    }
+
+    const topBox = boxes[0];
+    const bottomBox = boxes[boxes.length - 1];
+    
+    const columnId = 'left'; // or 'right' for RightColumn.tsx
+    const xPosition = columnId === 'left' ? CONFIG.CONTAINER_WIDTH : 0;
+    
+    const newConnectionPoints: ConnectionPoint[] = [
+      {
+        x: xPosition,
+        y: topBox.y + (CONFIG.BOX_WIDTH / 2),
+        type: 'top',
+        columnId
+      },
+      {
+        x: xPosition,
+        y: bottomBox.y + (CONFIG.BOX_WIDTH / 2),
+        type: 'bottom',
+        columnId
+      }
+    ];
+
+    updateConnectionPoint(newConnectionPoints);
+  }, [boxes]);
 
   useEffect(() => {
     const desiredCount = Math.min(Math.max(0, rightState.count), CONFIG.MAX_BOXES);
@@ -84,19 +134,6 @@ function useBoxManagement() {
     }
   }, [rightState.count]);
 
-  const addBox = () => {
-    if (boxes.length >= CONFIG.MAX_BOXES) return;
-    
-    const newId = crypto.randomUUID();
-    const newY = CONFIG.CONTAINER_HEIGHT - (rightState.count + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
-    
-    setBoxes([...boxes, { id: newId, x: 0, y: newY }]);
-    rightDispatch({ type: "increment" });
-    // Checks if max boxes is reached
-    // Positions the new box
-    // Updates state and context
-  };
-
   const removeBox = (boxId: string) => {
     const updatedBoxes = boxes.filter(box => box.id !== boxId);
     const rightColumnBoxes = updatedBoxes.filter(box => box.x === 0);
@@ -105,12 +142,27 @@ function useBoxManagement() {
       ...box,
       y: CONFIG.CONTAINER_HEIGHT - (index + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING),
     }));
-    // Repositions the boxes
-    setBoxes(repositionedBoxes);
+    setBoxes(updateBoxPoints(repositionedBoxes)); // Added updateBoxPoints
     rightDispatch({ type: "decrement" });
   };
 
-  return { boxes, addBox, removeBox };
+  const addBox = () => {
+    if (boxes.length >= CONFIG.MAX_BOXES) return;
+    
+    const newId = crypto.randomUUID();
+    const newY = CONFIG.CONTAINER_HEIGHT - (rightState.count + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
+    
+    const newBoxes = [...boxes, { id: newId, x: 0, y: newY }];
+    setBoxes(updateBoxPoints(newBoxes)); // Added updateBoxPoints
+    rightDispatch({ type: "increment" });
+  };
+
+  return { 
+    boxes, 
+    removeBox, 
+    addBox 
+    // Removed connectionPoints from return since it's handled by updateConnectionPoint
+  };
 }
 
 export default function RightColumn() {
