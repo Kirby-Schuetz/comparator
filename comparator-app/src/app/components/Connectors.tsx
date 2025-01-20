@@ -6,24 +6,58 @@
 
 // When pressing the play button, the line segments need to animate into their comparative symbol
 // Most likely an if then else statement that checks the top box position of each column and then animates the line segment to the top box position of the other column
-import { motion } from 'framer-motion';
+// import { motion } from 'framer-motion';
 import { useConnections } from '../context/connection-context';
 import { useState } from 'react';
 
-export function Connections() {
-  const { connectionPoints } = useConnections();
-  const [isDrawingMode, setIsDrawingMode] = useState(false);
+interface ConnectionPoint {
+  x: number;
+  y: number;
+  type: 'top' | 'bottom';
+  columnId: string;
+}
 
-  // Find the specific points for top and bottom connections
-  const leftTop = connectionPoints.find(p => p.columnId === 'left' && p.type === 'top');
-  const rightTop = connectionPoints.find(p => p.columnId === 'right' && p.type === 'top');
-  const leftBottom = connectionPoints.find(p => p.columnId === 'left' && p.type === 'bottom');
-  const rightBottom = connectionPoints.find(p => p.columnId === 'right' && p.type === 'bottom');
+export function Connections() {
+  const { connectionPoints, isDrawingMode, setIsDrawingMode } = useConnections();
+  const [connections, setConnections] = useState<Array<{start: ConnectionPoint, end: ConnectionPoint}>>([]);
+  const [activeConnection, setActiveConnection] = useState<{start: ConnectionPoint}>();
+
+  const handlePointClick = (point: ConnectionPoint) => {
+    if (!activeConnection) {
+      setActiveConnection({ start: point });
+    } else {
+      // Only allow connecting points of the same type (top-to-top or bottom-to-bottom)
+      // and from different columns
+      if (point.type === activeConnection.start.type && 
+          point.columnId !== activeConnection.start.columnId) {
+        // Check if this connection already exists
+        const connectionExists = connections.some(
+          conn => 
+            (conn.start === activeConnection.start && conn.end === point) ||
+            (conn.start === point && conn.end === activeConnection.start)
+        );
+
+        if (!connectionExists) {
+          setConnections(prev => [...prev, { start: activeConnection.start, end: point }]);
+        }
+      }
+      setActiveConnection(undefined);
+    }
+  };
+
+  // Clear all connections when exiting drawing mode
+  const handleDrawingModeToggle = () => {
+    setIsDrawingMode(!isDrawingMode);
+    if (isDrawingMode) {
+      setActiveConnection(undefined);
+      setConnections([]);
+    }
+  };
 
   return (
     <>
       <button
-        onClick={() => setIsDrawingMode(!isDrawingMode)}
+        onClick={handleDrawingModeToggle}
         style={{
           position: 'fixed',
           bottom: '20px',
@@ -49,65 +83,56 @@ export function Connections() {
           height: '100%',
           pointerEvents: isDrawingMode ? 'auto' : 'none',
           cursor: isDrawingMode ? 'crosshair' : 'default',
+          zIndex: 1000,
         }}
       >
-        {/* Connection Points Indicators */}
+        {/* Connection Points */}
         {isDrawingMode && connectionPoints.map((point, index) => (
           <circle
             key={`point-${index}`}
             cx={point.x}
             cy={point.y}
-            r={6}
-            fill="#2196f3"
+            r={8}
+            fill={activeConnection?.start === point ? "#ff0088" : "#2196f3"}
             stroke="#ffffff"
-            strokeWidth={2}
-            style={{
+            strokeWidth={3}
+            style={{ 
               cursor: 'pointer',
+              filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'
+            }}
+            onClick={() => handlePointClick(point)}
+          />
+        ))}
+
+        {/* Existing Connections */}
+        {isDrawingMode && connections.map((connection, index) => (
+          <line
+            key={`connection-${index}`}
+            x1={connection.start.x}
+            y1={connection.start.y}
+            x2={connection.end.x}
+            y2={connection.end.y}
+            stroke="#2196f3"
+            strokeWidth={4}
+            style={{
+              filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'
             }}
           />
         ))}
 
-        {/* Top Connection */}
-        {leftTop && rightTop && (
-          <motion.path
-            key="top-connection"
-            d={`
-              M ${leftTop.x} ${leftTop.y}
-              C ${leftTop.x + 100} ${leftTop.y},
-                ${rightTop.x - 100} ${rightTop.y},
-                ${rightTop.x} ${rightTop.y}
-              `}
+        {/* Active Connection Line */}
+        {isDrawingMode && activeConnection && (
+          <line
+            x1={activeConnection.start.x}
+            y1={activeConnection.start.y}
+            x2={activeConnection.start.x}
+            y2={activeConnection.start.y}
             stroke="#2196f3"
-            strokeWidth="3"
-            fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ 
-              pathLength: 1,
-              stroke: "#2196f3"
+            strokeWidth={4}
+            opacity={0.5}
+            style={{
+              filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'
             }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-        )}
-
-        {/* Bottom Connection */}
-        {leftBottom && rightBottom && (
-          <motion.path
-            key="bottom-connection"
-            d={`
-              M ${leftBottom.x} ${leftBottom.y}
-              C ${leftBottom.x + 100} ${leftBottom.y},
-                ${rightBottom.x - 100} ${rightBottom.y},
-                ${rightBottom.x} ${rightBottom.y}
-              `}
-            stroke="#2196f3"
-            strokeWidth="3"
-            fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ 
-              pathLength: 1,
-              stroke: "#2196f3"
-            }}
-            transition={{ duration: 1, ease: "easeInOut" }}
           />
         )}
       </svg>

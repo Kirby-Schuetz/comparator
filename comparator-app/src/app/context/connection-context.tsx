@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 
 
 interface ConnectionPoint {
@@ -26,33 +26,62 @@ interface ConnectionContextType {
   animateConnections: () => void;
   showConnections: boolean;
   setShowConnections: (show: boolean) => void;
+  isDrawingMode: boolean;
+  setIsDrawingMode: (mode: boolean) => void;
+  addConnectionPoint: (point: ConnectionPoint) => void;
 }
 
 export const ConnectionContext = createContext<ConnectionContextType | undefined>(undefined);
 
-export function ConnectionProvider({ children }: { children: ReactNode }) {
+export const ConnectionProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [connectionPoints, setConnectionPoints] = useState<ConnectionPoint[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
-  const [leftPoints, setLeftPoints] = useState<ConnectionPoint[]>([]);
-  const [rightPoints, setRightPoints] = useState<ConnectionPoint[]>([]);
   const [showConnections, setShowConnections] = useState(false);
+
+  const addConnectionPoint = (point: ConnectionPoint) => {
+    setConnectionPoints(prev => {
+      // Check if point already exists to avoid duplicates
+      const exists = prev.some(p => 
+        p.x === point.x && 
+        p.y === point.y && 
+        p.type === point.type && 
+        p.columnId === point.columnId
+      );
+      if (!exists) {
+        return [...prev, point];
+      }
+      return prev;
+    });
+  };
+
+  // Clear only connections when exiting drawing mode
+  useEffect(() => {
+    if (!isDrawingMode) {
+      setConnections([]); // Only clear connections
+    }
+  }, [isDrawingMode]);
 
   const updateConnectionPoint = useCallback((points: ConnectionPoint[]) => {
     if (points.length === 0) {
-      // Clear points for the respective column
+      // If points array is empty, clear all points for that column
+      const columnId = points[0]?.columnId;
+      if (columnId) {
+        setConnectionPoints(prev => prev.filter(p => p.columnId !== columnId));
+      } else {
+        // If no columnId (empty array), don't modify points
+        return;
+      }
       return;
     }
     
-    // Update points based on columnId
+    // Update points for the specific column while preserving the other column's points
     const columnId = points[0].columnId;
-    if (columnId === 'left') {
-      setLeftPoints(points);
-    } else if (columnId === 'right') {
-      setRightPoints(points);
-    }
+    setConnectionPoints(prev => {
+      const otherPoints = prev.filter(p => p.columnId !== columnId);
+      return [...otherPoints, ...points];
+    });
   }, []);
-
-  // Combine points for components that need all connection points
-  const allConnectionPoints = [...leftPoints, ...rightPoints];
 
   const startConnection = (from: ConnectionPoint) => {
     // Only allow one connection per point type
@@ -83,20 +112,23 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ConnectionContext.Provider value={{
-      connections,
-      connectionPoints: allConnectionPoints,
-      showConnections,
+    <ConnectionContext.Provider value={{ 
+      connections, 
+      connectionPoints, 
+      showConnections, 
       setShowConnections,
       updateConnectionPoint,
       startConnection,
       completeConnection,
-      animateConnections
+      animateConnections,
+      isDrawingMode, 
+      setIsDrawingMode,
+      addConnectionPoint 
     }}>
       {children}
     </ConnectionContext.Provider>
   );
-}
+};
 
 export const useConnections = () => {
   const context = useContext(ConnectionContext);
