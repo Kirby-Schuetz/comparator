@@ -72,46 +72,46 @@ function useBoxManagement(constraintsRef: React.RefObject<HTMLDivElement | null>
   
     const containerRect = constraintsRef.current.getBoundingClientRect();
     const columnId = 'right';
-    // Adjust x position to be at the left edge of the block
-    const xPosition = containerRect.left; // Position at left edge of block
+    const xPosition = containerRect.left; // Position at left edge of right column
     
     let connectionPoints: ConnectionPoint[] = [];
   
-    if (boxes.length === 0) {
-      connectionPoints = [];
-    } else if (boxes.length === 1) {
+    if (boxes.length === 1) {
+      // When there's one box, create two distinct points - one at top and one at bottom
       const box = boxes[0];
       connectionPoints = [
         {
           x: xPosition,
-          y: box.y + 10, // Top of the box
+          y: box.y, // Top of the box
           type: 'top',
           columnId
         },
         {
           x: xPosition,
-          y: box.y + 30, // Bottom of the box
+          y: box.y + CONFIG.BOX_WIDTH, // Bottom of the box
           type: 'bottom',
           columnId
         }
       ];
-    } else {
+    } else if (boxes.length > 1) {
+      // When there are multiple boxes
       connectionPoints = [
         {
           x: xPosition,
-          y: boxes[0].y + 20, // Top block connection
+          y: boxes[0].y, // Top of the first box
           type: 'top',
           columnId
         },
         {
           x: xPosition,
-          y: boxes[boxes.length - 1].y + 20, // Bottom block connection
+          y: boxes[boxes.length - 1].y + CONFIG.BOX_WIDTH, // Bottom of the last box
           type: 'bottom',
           columnId
         }
       ];
     }
-  
+    // If boxes.length === 0, connectionPoints remains an empty array
+
     updateConnectionPoint(connectionPoints);
   }, [boxes, updateConnectionPoint, constraintsRef]);
 

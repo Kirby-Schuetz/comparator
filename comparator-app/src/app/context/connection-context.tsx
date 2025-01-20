@@ -64,13 +64,10 @@ export const ConnectionProvider = ({ children }: { children: React.ReactNode }) 
 
   const updateConnectionPoint = useCallback((points: ConnectionPoint[]) => {
     if (points.length === 0) {
-      // If points array is empty, clear all points for that column
+      // If points are empty, only clear points for the specific column
       const columnId = points[0]?.columnId;
       if (columnId) {
         setConnectionPoints(prev => prev.filter(p => p.columnId !== columnId));
-      } else {
-        // If no columnId (empty array), don't modify points
-        return;
       }
       return;
     }
