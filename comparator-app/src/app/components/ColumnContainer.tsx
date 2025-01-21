@@ -7,7 +7,7 @@ import LeftColumn from "./LeftColumn";
 export default function Container() {
   return (
     <div>
-      <div className="flex flex-row justify-center items-center h-[500px] gap-8 p-8 bg-gray-100 relative">
+      <div className="flex flex-row justify-center items-center h-[650px] gap-8 p-8 bg-gray-100 relative">
         <LeftColumn />
         <RightColumn />
       </div>

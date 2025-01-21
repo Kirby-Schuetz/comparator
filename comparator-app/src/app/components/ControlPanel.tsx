@@ -49,11 +49,11 @@ const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement 
           >
             <div style={controlContent}>
               <div style={column}>
-                <label style={label} htmlFor="column1Input">
-                  Column 1
+                <label style={label} htmlFor="leftColumnInput">
+                  Left Column
                 </label>
                 <input
-                  id="column1Input"
+                  id="leftColumnInput"
                   type="text"
                   value={leftState.count}
                   onChange={handleColumn1Change}
@@ -66,11 +66,11 @@ const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement 
             </div>
             <div style={controlContent}>
               <div style={column}>
-                <label style={label} htmlFor="column2Input">
-                  Column 2
+                <label style={label} htmlFor="rightColumnInput">
+                  Right Column
                 </label>
                 <input
-                  id="column2Input"
+                  id="rightColumnInput"
                   type="text"
                   value={rightState.count}
                   onChange={handleColumn2Change}

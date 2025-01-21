@@ -18,17 +18,18 @@ import { CONFIG } from "../types/shared";
 // Styles
 const styles = {
   container: {
-    width: CONFIG.CONTAINER_WIDTH,
+    width: '40%',
     height: CONFIG.CONTAINER_HEIGHT,
     borderRadius: 5,
     position: "relative" as const,
     marginBottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
   },
   column: {
-    width: CONFIG.BOX_WIDTH,
+    width: '100%',
     height: "100%",
     float: "right" as const,
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: "rgba(0,0,0,0)",
     borderRadius: 5,
     paddingBottom: "24px",
   },
@@ -83,11 +84,11 @@ export default function LeftColumn() {
             display: 'flex', 
             flexDirection: 'column',
             justifyContent: 'center',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             height: '100%',
             position: 'absolute',
             top: 0,
-            left: 0,  // Changed from 'right' to 'left' for left column
+            left: '33%',
             width: '100%',
           }}
         >

@@ -8,17 +8,17 @@ import { CONFIG } from "../types/shared";
 
 const styles = {
   container: {
-    width: CONFIG.CONTAINER_WIDTH,
+    width: '40%',
     height: CONFIG.CONTAINER_HEIGHT,
     borderRadius: 5,
     position: "relative" as const,
     marginBottom: 0,
   },
   column: {
-    width: CONFIG.BOX_WIDTH,
+    width: '100%',
     height: "100%",
     float: "right" as const,
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: "rgba(0,0,0,0)",
     borderRadius: 5,
     paddingBottom: "24px",
   },
@@ -72,11 +72,11 @@ export default function RightColumn() {
             display: 'flex', 
             flexDirection: 'column',
             justifyContent: 'center',
-            alignItems: 'center',
+            alignItems: 'flex-end',
             height: '100%',
             position: 'absolute',
             top: 0,
-            right: 0,
+            right: '33%',
             width: '100%',
           }}
         >
