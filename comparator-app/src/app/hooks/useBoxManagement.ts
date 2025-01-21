@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { useLeftBox } from "../context/left-box-context";
+import { useRightBox } from "../context/right-box-context";
 import { Box, CONFIG } from "../types/shared";
 
 // Configuration
-export function useBoxManagement() {
+export function useBoxManagement(columnId: 'left' | 'right') {
   const [boxes, setBoxes] = useState<Box[]>([]);
   const { leftState, leftDispatch } = useLeftBox();
+  const { rightState, rightDispatch } = useRightBox();
+
+  // Get the correct state and dispatch based on columnId
+  const state = columnId === 'left' ? leftState : rightState;
+  const dispatch = columnId === 'left' ? leftDispatch : rightDispatch;
 
   // Handle window resizing
   useEffect(() => {
@@ -20,7 +26,7 @@ export function useBoxManagement() {
 
   // Update boxes when count changes
   useEffect(() => {
-    const desiredCount = Math.min(Math.max(0, leftState.count), CONFIG.MAX_BOXES);
+    const desiredCount = Math.min(Math.max(0, state.count), CONFIG.MAX_BOXES);
     const currentCount = boxes.length;
     
     if (desiredCount > currentCount) {
@@ -29,7 +35,7 @@ export function useBoxManagement() {
       for (let i = currentCount; i < desiredCount; i++) {
         newBoxes.push({
           id: crypto.randomUUID(),
-          x: 0,
+          x: columnId === 'left' ? 0 : CONFIG.CONTAINER_WIDTH - CONFIG.BOX_WIDTH,
           y: CONFIG.CONTAINER_HEIGHT - (i + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING)        
         });
       }
@@ -43,29 +49,35 @@ export function useBoxManagement() {
       }));
       setBoxes(repositionedBoxes);
     }
-  }, [boxes,leftState.count]);
+  }, [boxes, state.count, columnId]);
 
   const removeBox = (boxId: string) => {
     const updatedBoxes = boxes.filter(box => box.id !== boxId);
-    const leftColumnBoxes = updatedBoxes.filter(box => box.x === 0);
+    const columnBoxes = updatedBoxes.filter(box => 
+      columnId === 'left' ? box.x === 0 : box.x === CONFIG.CONTAINER_WIDTH - CONFIG.BOX_WIDTH
+    );
 
-    const repositionedBoxes = leftColumnBoxes.map((box, index) => ({
+    const repositionedBoxes = columnBoxes.map((box, index) => ({
       ...box,
       y: CONFIG.CONTAINER_HEIGHT - (index + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING),
     }));
     setBoxes(repositionedBoxes);
-    leftDispatch({ type: "decrement" });
+    dispatch({ type: "decrement" });
   };
 
   const addBox = () => {
     if (boxes.length >= CONFIG.MAX_BOXES) return;
     console.log('Adding box');
     const newId = crypto.randomUUID();
-    const newY = CONFIG.CONTAINER_HEIGHT - (leftState.count + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
+    const newY = CONFIG.CONTAINER_HEIGHT - (state.count + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
     
-    const newBoxes = [...boxes, { id: newId, x: 0, y: newY }];
+    const newBoxes = [...boxes, { 
+      id: newId, 
+      x: columnId === 'left' ? 0 : CONFIG.CONTAINER_WIDTH - CONFIG.BOX_WIDTH,
+      y: newY 
+    }];
     setBoxes(newBoxes);
-    leftDispatch({ type: "increment" });
+    dispatch({ type: "increment" });
   };
 
   return { boxes, removeBox, addBox };

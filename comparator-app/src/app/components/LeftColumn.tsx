@@ -11,7 +11,7 @@
 
 import { motion } from "framer-motion";
 import { useRef } from "react";
-import { BlockGroup } from './BlockGroup';
+import Block from './Block';
 import { useBoxManagement } from "../hooks/useBoxManagement";
 import { CONFIG } from "../types/shared";
 
@@ -36,10 +36,11 @@ const styles = {
 
 export default function LeftColumn() {
   const constraintsRef = useRef<HTMLDivElement>(null);
-  const { boxes, addBox, removeBox } = useBoxManagement();
+  const { boxes, addBox, removeBox } = useBoxManagement('left');
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    console.log('Double click event detected');
+    if (e.currentTarget !== e.target) return; // Only trigger if clicking the column itself
+    console.log('Left column double click event detected');
     e.preventDefault();
     e.stopPropagation();
     addBox();
@@ -73,28 +74,33 @@ export default function LeftColumn() {
           minHeight: '100%',
           zIndex: 200,
         }}
-      />
-      
-      <div className="boxes-container" style={{ 
-        gap: '24px', 
-        display: 'flex', 
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100%',
-        position: 'relative',
-      }}>
-        {boxes.map((box, index) => (
-          <BlockGroup
-            key={box.id}
-            id={box.id}
-            isDraggable
-            onDragEnd={(event) => handleDragEnd(event, box.id)}
-            constraintsRef={constraintsRef as React.RefObject<HTMLDivElement>}
-            columnId="left"
-            isTop={index === 0}
-            isBottom={index === boxes.length - 1}
-          />
-        ))}
+      >
+        <div 
+          className="boxes-container" 
+          onDoubleClick={handleDoubleClick}
+          style={{ 
+            gap: '24px', 
+            display: 'flex', 
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,  // Changed from 'right' to 'left' for left column
+            width: '100%',
+          }}
+        >
+          {boxes.map((box) => (
+            <Block
+              key={box.id}
+              id={box.id}
+              isDraggable
+              onDragEnd={(event) => handleDragEnd(event, box.id)}
+              constraintsRef={constraintsRef as React.RefObject<HTMLDivElement>}
+            />
+          ))}
+        </div>
       </div>
     </motion.div>
   );

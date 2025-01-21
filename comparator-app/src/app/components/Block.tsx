@@ -42,22 +42,24 @@ export default function Block({ id, isDraggable, onDragEnd, constraintsRef }: Bl
   };
 
   return (
-    <motion.div
-      key={id}
-      className="block"
-      drag={isDraggable}
-      dragConstraints={constraintsRef}
-      dragElastic={0.2}
-      onDragEnd={onDragEnd}
-      style={blockStyle}
-      whileHover={{ transform: 'rotateX(-20deg) rotateY(25deg) scale(1.1)' }}
-    >
-      <div style={{ ...styles.face, ...styles.front }} />
-      <div style={{ ...styles.face, ...styles.back }} />
-      <div style={{ ...styles.face, ...styles.right }} />
-      <div style={{ ...styles.face, ...styles.left }} />
-      <div style={{ ...styles.face, ...styles.top }} />
-      <div style={{ ...styles.face, ...styles.bottom }} />
-    </motion.div>
+    <div className="block-group">
+      <motion.div
+        key={id}
+        className="block"
+        drag={isDraggable}
+        dragConstraints={constraintsRef}
+        dragElastic={0.2}
+        onDragEnd={onDragEnd}
+        style={blockStyle}
+        whileHover={{ transform: 'rotateX(-20deg) rotateY(25deg) scale(1.1)' }}
+      >
+        <div style={{ ...styles.face, ...styles.front }} />
+        <div style={{ ...styles.face, ...styles.back }} />
+        <div style={{ ...styles.face, ...styles.right }} />
+        <div style={{ ...styles.face, ...styles.left }} />
+        <div style={{ ...styles.face, ...styles.top }} />
+        <div style={{ ...styles.face, ...styles.bottom }} />
+      </motion.div>
+    </div>
   );
 }
