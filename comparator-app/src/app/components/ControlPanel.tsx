@@ -13,7 +13,7 @@ interface ControlPanelProps {
 
 const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
-  const [isDrawingMode, setIsDrawingMode] = useState<boolean>(false);
+  const [isCompareMode, setIsCompareMode] = useState<boolean>(false);
   const { leftState, leftDispatch } = useLeftBox();
   const { rightState, rightDispatch } = useRightBox();
 
@@ -28,12 +28,12 @@ const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement 
   };
 
   // Update the click handler to call the prop
-  const handleDrawingModeClick = () => {
-    console.log('Current drawing mode:', isDrawingMode); // Debug log
-    const newMode = !isDrawingMode;
-    setIsDrawingMode(newMode);
+  const handleCompareModeClick = () => {
+    console.log('Current compare mode:', isCompareMode);
+    const newMode = !isCompareMode;
+    setIsCompareMode(newMode);
     onDrawingModeChange(newMode);
-    console.log('New drawing mode:', newMode); // Debug log
+    console.log('New compare mode:', newMode);
   };
 
   return (
@@ -83,13 +83,13 @@ const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement 
             </div>
             <motion.button
               style={{
-                ...drawButton,
-                backgroundColor: isDrawingMode ? '#ff0088' : '#0cdcf7',
+                ...compareButton,
+                backgroundColor: isCompareMode ? '#ff0088' : '#0cdcf7',
               }}
-              onClick={handleDrawingModeClick}
+              onClick={handleCompareModeClick}
               whileTap={{ scale: 0.95 }}
             >
-              {isDrawingMode ? 'Exit Drawing Mode' : 'Enter Drawing Mode'}
+              {isCompareMode ? 'Exit Compare Mode' : 'Enter Compare Mode'}
             </motion.button>
           </motion.div>
         )}
@@ -162,7 +162,7 @@ const input: React.CSSProperties = {
   width: "80px",
 };
 
-const drawButton: React.CSSProperties = {
+const compareButton: React.CSSProperties = {
   position: 'absolute',
   bottom: 10,
   left: 10,
