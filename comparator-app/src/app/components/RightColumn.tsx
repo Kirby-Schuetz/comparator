@@ -61,7 +61,7 @@ export default function RightColumn() {
           cursor: 'pointer',
           minWidth: CONFIG.BOX_WIDTH,
           minHeight: '100%',
-          zIndex: 200,
+          zIndex: 1,
         }}
       >
         <div 
@@ -78,6 +78,7 @@ export default function RightColumn() {
             top: 0,
             right: '33%',
             width: '100%',
+            pointerEvents: 'auto',
           }}
         >
           {boxes.map((box) => (

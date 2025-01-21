@@ -73,7 +73,7 @@ export default function LeftColumn() {
           cursor: 'pointer',
           minWidth: CONFIG.BOX_WIDTH,
           minHeight: '100%',
-          zIndex: 200,
+          zIndex: 1,
         }}
       >
         <div 
@@ -90,6 +90,7 @@ export default function LeftColumn() {
             top: 0,
             left: '33%',
             width: '100%',
+            pointerEvents: 'auto',
           }}
         >
           {boxes.map((box) => (

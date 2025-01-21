@@ -28,7 +28,7 @@ export function LineCanvas({ isDrawingMode }: { isDrawingMode: boolean }) {
       canvasParent.style.top = `${containerRect.top}px`;
       canvasParent.style.height = `${containerRect.height}px`;
       
-      canvas.width = 400;
+      canvas.width = containerRect.width;
       canvas.height = containerRect.height;
       
       const ctx = canvas.getContext('2d');
@@ -85,7 +85,8 @@ export function LineCanvas({ isDrawingMode }: { isDrawingMode: boolean }) {
       position: 'fixed',
       left: '50%',
       transform: 'translateX(-50%)',
-      width: '400px',
+      width: '100%',
+      maxWidth: '1100px',
       backgroundColor: isDrawingMode ? 'rgba(255,255,255,0.1)' : 'transparent',
       zIndex: 100,
       pointerEvents: isDrawingMode ? 'auto' : 'none',
