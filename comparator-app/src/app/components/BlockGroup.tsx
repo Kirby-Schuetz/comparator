@@ -1,18 +1,12 @@
 "use client";
 
 // import { motion } from "framer-motion";
-import Block from "./Blocks";
-import { useConnections } from "../context/connection-context";
-import { PanInfo } from "framer-motion";
-import { useEffect } from "react";
+import Block from "./Block";
 
 interface BlockGroupProps {
   id: string;
-  x: number;
-  y: number;
-  points?: number;
   isDraggable: boolean;
-  onDragEnd?: (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => void;
+  onDragEnd?: (event: MouseEvent | TouchEvent | PointerEvent) => void;
   constraintsRef: React.RefObject<HTMLDivElement>;
   columnId: 'left' | 'right';
   isTop: boolean;
@@ -21,28 +15,17 @@ interface BlockGroupProps {
 
 export function BlockGroup({
   id,
-  x,
-  y,
-  points,
   isDraggable,
   onDragEnd,
   constraintsRef,
-  columnId,
-  isTop,
-  isBottom
 }: BlockGroupProps) {
-  const { isDrawingMode } = useConnections();
-
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="block-group">
       <Block
         id={id}
-        x={x}
-        y={y}
-        points={points}
         isDraggable={isDraggable}
         onDragEnd={onDragEnd}
-        constraintsRef={constraintsRef}
+        constraintsRef={constraintsRef as React.RefObject<HTMLDivElement>}
       />
     </div>
   );

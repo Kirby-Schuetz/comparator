@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
-type Action = { type: 'increment' } | { type: 'decrement' } | { type: 'setCount', count: number };
+type Action = 
+  | { type: "increment" }
+  | { type: "decrement" }
+  | { type: "setCount"; count: number };
 type Dispatch = (action: Action) => void;
 type State = { count: number };
 type LeftBoxProviderProps = { children: React.ReactNode };
@@ -11,19 +14,16 @@ const LeftBoxStateContext = React.createContext<
     { leftState: State; leftDispatch: Dispatch } | undefined
 >(undefined);
 
-function leftBoxReducer(leftState: State, action: Action) {
+function leftBoxReducer(state: State, action: Action) {
     switch (action.type) {
-        case 'increment': {
-            return { count: leftState.count + 1 }
+        case "increment": {
+            return { count: Math.min(state.count + 1, 10) };
         }
-        case 'decrement': {
-            return { count: leftState.count - 1 }
+        case "decrement": {
+            return { count: Math.max(state.count - 1, 0) };
         }
-        case 'setCount': {
-            return { count: action.count }
-        }
-        default: {
-            throw new Error(`Unhandled action type: ${action.type}`);
+        case "setCount": {
+            return { count: action.count };
         }
     }
 }

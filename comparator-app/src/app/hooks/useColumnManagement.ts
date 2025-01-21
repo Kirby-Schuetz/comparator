@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Box, ConnectionPoint, ColumnId, CONFIG } from '../types/shared';
+import { Box, ColumnId, CONFIG } from '../types/shared';
 import { useColumns } from '../context/columns-context';
-import { useConnections } from '../context/connection-context';
 
 export function useColumnManagement(
-  columnId: ColumnId,
-  constraintsRef: React.RefObject<HTMLDivElement>
+  columnId: ColumnId
 ) {
   const [boxes, setBoxes] = useState<Box[]>([]);
   const { count, increment, decrement } = useColumns(columnId);
-  const { updateConnectionPoint } = useConnections();
 
   const updateBoxPoints = (boxArray: Box[]): Box[] => {
     if (boxArray.length === 0) return [];
@@ -20,34 +17,6 @@ export function useColumnManagement(
              undefined
     }));
   };
-
-  // Connection points effect
-  useEffect(() => {
-    if (!constraintsRef.current) {
-      updateConnectionPoint([]);
-      return;
-    }
-
-    const containerRect = constraintsRef.current.getBoundingClientRect();
-    const topY = boxes.length > 0 
-      ? boxes[0].y + (CONFIG.BOX_WIDTH / 2)
-      : containerRect.top + CONFIG.BOX_WIDTH / 2;
-    
-    const bottomY = boxes.length > 0 
-      ? boxes[boxes.length - 1].y + (CONFIG.BOX_WIDTH / 2)
-      : containerRect.bottom - CONFIG.BOX_WIDTH / 2;
-
-    const xPosition = columnId === 'left'
-      ? containerRect.left + CONFIG.BOX_WIDTH + 15
-      : containerRect.left - 15;
-
-    const newConnectionPoints: ConnectionPoint[] = [
-      { x: xPosition, y: topY, type: 'top', columnId },
-      { x: xPosition, y: bottomY, type: 'bottom', columnId }
-    ];
-
-    updateConnectionPoint(newConnectionPoints);
-  }, [boxes, updateConnectionPoint, constraintsRef, columnId]);
 
   // Box count effect
   useEffect(() => {
@@ -62,7 +31,7 @@ export function useColumnManagement(
       }));
       setBoxes(updateBoxPoints(newBoxes));
     }
-  }, [count]);
+  }, []);
 
   const removeBox = (boxId: string) => {
     setBoxes(prev => {
@@ -86,4 +55,4 @@ export function useColumnManagement(
   };
 
   return { boxes, addBox, removeBox };
-} 
+}

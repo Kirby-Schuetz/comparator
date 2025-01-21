@@ -22,9 +22,6 @@ function rightBoxReducer(rightState: State, action: Action) {
         case 'setCount': {
             return { count: action.count }
         }
-        default: {
-            throw new Error(`Unhandled action type: ${action.type}`);
-        }
     }
 }
 

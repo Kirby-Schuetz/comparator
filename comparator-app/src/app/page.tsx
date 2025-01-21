@@ -1,15 +1,19 @@
+"use client";
 import Image from "next/image";
 import ControlPanel from "./components/ControlPanel";
 // import Blocks from "./components/Blocks";
 import { LeftBoxProvider } from "./context/left-box-context";
 import { RightBoxProvider } from "./context/right-box-context";
 import ColumnContainer from "./components/ColumnContainer";
-import { ConnectionProvider } from "./context/connection-context";
+import { LineCanvas } from './components/LineCanvas';
+import { useState } from "react";
 
 export default function Home() {
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-left justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-left sm:items-start">
+    <div className="flex flex-col items-center justify-center h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-8 items-left sm:items-start">
         <Image
           className="dark:invert"
           src="/comparator.png"
@@ -20,17 +24,16 @@ export default function Home() {
         />
         <LeftBoxProvider>
           <RightBoxProvider>
-            <ConnectionProvider>
-              <div>
-                <ColumnContainer />
-              </div>
-              <div>
-                <ControlPanel />
-              </div>
-            </ConnectionProvider>
+            <div>
+              <ColumnContainer />
+            </div>
+            <div>
+              <ControlPanel onDrawingModeChange={setIsDrawingMode} />
+            </div>
           </RightBoxProvider>
         </LeftBoxProvider>
         <div></div>
+        <LineCanvas isDrawingMode={isDrawingMode} />
       </main>
     </div>
   );

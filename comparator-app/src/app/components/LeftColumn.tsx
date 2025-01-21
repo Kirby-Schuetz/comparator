@@ -9,34 +9,11 @@
 
 "use client";
 
-import { motion, PanInfo } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import { useLeftBox } from "../context/left-box-context";
-import { useConnections } from "../context/connection-context";
+import { motion } from "framer-motion";
+import { useRef } from "react";
 import { BlockGroup } from './BlockGroup';
-
-// BoxID and positioning
-interface Box {
-  id: string;
-  x: number;
-  y: number;
-  points?: number;
-}
-interface ConnectionPoint {
-  x: number;
-  y: number;
-  type: 'top' | 'bottom';
-  columnId: 'left' | 'right';
-}
-
-// Configuration
-const CONFIG = {
-  SPACING: 12, // 1/3 cm = ~12px
-  BOX_WIDTH: 40,
-  MAX_BOXES: 10,
-  CONTAINER_HEIGHT: 520,
-  CONTAINER_WIDTH: 80,
-} as const;
+import { useBoxManagement } from "../hooks/useBoxManagement";
+import { CONFIG } from "../types/shared";
 
 // Styles
 const styles = {
@@ -53,194 +30,72 @@ const styles = {
     float: "right" as const,
     backgroundColor: "rgba(0,0,0,0.1)",
     borderRadius: 5,
+    paddingBottom: "24px",
   },
 };
 
-function useBoxManagement(constraintsRef: React.RefObject<HTMLDivElement | null>) {
-  const [boxes, setBoxes] = useState<Box[]>([]);
-  const { leftState, leftDispatch } = useLeftBox();
-  const { updateConnectionPoint } = useConnections();
-  
-  // Updated points calculation to be more explicit
-  const updateBoxPoints = (boxArray: Box[]): Box[] => {
-    if (boxArray.length === 0) return [];
-    return boxArray.map((box, index) => ({
-      ...box,
-      points: index === 0 ? 10 : // top box gets 10 points
-             index === boxArray.length - 1 ? 1 : // bottom box gets 1 point
-             undefined // middle boxes get no points
-    }));
-  };
-
-  useEffect(() => {
-    if (!constraintsRef.current) {
-      updateConnectionPoint([]);
-      return;
-    }
-
-    const containerRect = constraintsRef.current.getBoundingClientRect();
-    const columnId = 'left';
-    const xPosition = containerRect.right; // Position at right edge of left column
-    
-    let connectionPoints: ConnectionPoint[] = [];
-
-    if (boxes.length === 1) {
-      // When there's one box, create two distinct points - one at top and one at bottom
-      const box = boxes[0];
-      connectionPoints = [
-        {
-          x: xPosition,
-          y: box.y, // Top of the box
-          type: 'top',
-          columnId
-        },
-        {
-          x: xPosition,
-          y: box.y + CONFIG.BOX_WIDTH, // Bottom of the box
-          type: 'bottom',
-          columnId
-        }
-      ];
-    } else if (boxes.length > 1) {
-      // When there are multiple boxes
-      connectionPoints = [
-        {
-          x: xPosition,
-          y: boxes[0].y, // Top of the first box
-          type: 'top',
-          columnId
-        },
-        {
-          x: xPosition,
-          y: boxes[boxes.length - 1].y + CONFIG.BOX_WIDTH, // Bottom of the last box
-          type: 'bottom',
-          columnId
-        }
-      ];
-    }
-    // If boxes.length === 0, connectionPoints remains an empty array
-
-    updateConnectionPoint(connectionPoints);
-  }, [boxes, updateConnectionPoint, constraintsRef]);
-
-  // Add resize listener
-  useEffect(() => {
-    const handleResize = () => {
-      // Force re-calculation of points on resize
-      const event = new Event('resize');
-      window.dispatchEvent(event);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [boxes]);
-
-  useEffect(() => {
-    const desiredCount = Math.min(Math.max(0, leftState.count), CONFIG.MAX_BOXES);
-    const currentCount = boxes.length;
-    
-    if (desiredCount > currentCount) {
-      // Add boxes
-      const newBoxes = [...boxes];
-      for (let i = currentCount; i < desiredCount; i++) {
-        newBoxes.push({
-          id: crypto.randomUUID(),
-          x: 0,
-          y: CONFIG.CONTAINER_HEIGHT - (i + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING)        
-        });
-      }
-      setBoxes(updateBoxPoints(newBoxes));
-    } else if (desiredCount < currentCount) {
-      // Remove boxes from the top
-      const newBoxes = boxes.slice(0, desiredCount);
-      // Reposition remaining boxes
-      const repositionedBoxes = newBoxes.map((box, index) => ({
-        ...box,
-        y: CONFIG.CONTAINER_HEIGHT - (index + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING),
-      }));
-      setBoxes(updateBoxPoints(repositionedBoxes));
-    }
-  }, [leftState.count]);
-
-  const removeBox = (boxId: string) => {
-    const updatedBoxes = boxes.filter(box => box.id !== boxId);
-    const leftColumnBoxes = updatedBoxes.filter(box => box.x === 0);
-
-    const repositionedBoxes = leftColumnBoxes.map((box, index) => ({
-      ...box,
-      y: CONFIG.CONTAINER_HEIGHT - (index + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING),
-    }));
-    setBoxes(updateBoxPoints(repositionedBoxes));
-    leftDispatch({ type: "decrement" });
-  };
-
-  const addBox = () => {
-    if (boxes.length >= CONFIG.MAX_BOXES) return;
-    
-    const newId = crypto.randomUUID();
-    const newY = CONFIG.CONTAINER_HEIGHT - (leftState.count + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
-    
-    const newBoxes = [...boxes, { id: newId, x: 0, y: newY }];
-    setBoxes(updateBoxPoints(newBoxes));
-    leftDispatch({ type: "increment" });
-
-    // Checks if max boxes is reached
-    // Positions the new box
-    // Updates state and context
-  };
-
-  return { boxes, removeBox, addBox };
-}
-
 export default function LeftColumn() {
   const constraintsRef = useRef<HTMLDivElement>(null);
-  const { boxes, addBox, removeBox } = useBoxManagement(constraintsRef);
-  const { isDrawingMode } = useConnections();
+  const { boxes, addBox, removeBox } = useBoxManagement();
 
-  const handleDragEnd = (
-    event: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo,
-    boxId: string
-  ) => {
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    console.log('Double click event detected');
+    e.preventDefault();
+    e.stopPropagation();
+    addBox();
+  };
+
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, boxId: string) => {
     const container = constraintsRef.current?.getBoundingClientRect();
     if (!container) return;
 
     const target = event.target as HTMLElement;
-    const draggedRect = target.getBoundingClientRect();
+    const box = target.getBoundingClientRect();
+    
+    const isOutside = 
+      box.left < container.left || 
+      box.right > container.right || 
+      box.top < container.top || 
+      box.bottom > container.bottom;
 
-    const isOutside =
-      draggedRect.left < container.left ||
-      draggedRect.right > container.right ||
-      draggedRect.top < container.top ||
-      draggedRect.bottom > container.bottom;
-
-    if (isOutside) {
-      removeBox(boxId);
-    }
-
-    // Checks if box is outside the container
-    // Removes the box if it is
+    if (isOutside) removeBox(boxId);
   };
 
   return (
     <motion.div ref={constraintsRef} style={styles.container}>
-      <div onDoubleClick={addBox} style={styles.column} />
-
-      {boxes.map((box, index) => (
-        <BlockGroup
-          key={box.id}
-          id={box.id}
-          x={box.x}
-          y={box.y}
-          points={box.points}
-          isDraggable={!isDrawingMode}
-          onDragEnd={(event, info) => !isDrawingMode && handleDragEnd(event, info, box.id)}
-          constraintsRef={constraintsRef}
-          columnId="left"
-          isTop={index === 0}
-          isBottom={index === boxes.length - 1}
-        />
-      ))}
+      <div 
+        onDoubleClick={handleDoubleClick}
+        style={{
+          ...styles.column,
+          position: 'relative',
+          cursor: 'pointer',
+          minWidth: CONFIG.BOX_WIDTH,
+          minHeight: '100%',
+          zIndex: 200,
+        }}
+      />
+      
+      <div className="boxes-container" style={{ 
+        gap: '24px', 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center',
+        height: '100%',
+        position: 'relative',
+      }}>
+        {boxes.map((box, index) => (
+          <BlockGroup
+            key={box.id}
+            id={box.id}
+            isDraggable
+            onDragEnd={(event) => handleDragEnd(event, box.id)}
+            constraintsRef={constraintsRef as React.RefObject<HTMLDivElement>}
+            columnId="left"
+            isTop={index === 0}
+            isBottom={index === boxes.length - 1}
+          />
+        ))}
+      </div>
     </motion.div>
   );
 }

@@ -5,13 +5,17 @@ import * as motion from "motion/react-client";
 import { useState, ReactElement } from "react";
 import { useLeftBox } from "../context/left-box-context";
 import { useRightBox } from "../context/right-box-context";
-// import { useConnections } from "../context/connection-context";
 
-const ControlPanel = (): ReactElement => {
+// Add prop interface
+interface ControlPanelProps {
+  onDrawingModeChange: (isDrawing: boolean) => void;
+}
+
+const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [isDrawingMode, setIsDrawingMode] = useState<boolean>(false);
   const { leftState, leftDispatch } = useLeftBox();
   const { rightState, rightDispatch } = useRightBox();
-  // const { showConnections, setShowConnections } = useConnections();
 
   const handleColumn1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Math.max(0, Number(e.target.value)), 10);
@@ -21,6 +25,15 @@ const ControlPanel = (): ReactElement => {
   const handleColumn2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Math.max(0, Number(e.target.value)), 10);
     rightDispatch({ type: "setCount", count: value });
+  };
+
+  // Update the click handler to call the prop
+  const handleDrawingModeClick = () => {
+    console.log('Current drawing mode:', isDrawingMode); // Debug log
+    const newMode = !isDrawingMode;
+    setIsDrawingMode(newMode);
+    onDrawingModeChange(newMode);
+    console.log('New drawing mode:', newMode); // Debug log
   };
 
   return (
@@ -68,6 +81,16 @@ const ControlPanel = (): ReactElement => {
                 />
               </div>
             </div>
+            <motion.button
+              style={{
+                ...drawButton,
+                backgroundColor: isDrawingMode ? '#ff0088' : '#0cdcf7',
+              }}
+              onClick={handleDrawingModeClick}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isDrawingMode ? 'Exit Drawing Mode' : 'Enter Drawing Mode'}
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -92,13 +115,14 @@ const container: React.CSSProperties = {
 
 const box: React.CSSProperties = {
   width: "100%",
-  height: "120px",
+  height: "160px",
   backgroundColor: "#95a5a6",
   borderRadius: "10px",
   padding: "10px",
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-around",
+  position: "relative",
 };
 
 const button: React.CSSProperties = {
@@ -107,7 +131,7 @@ const button: React.CSSProperties = {
   padding: "10px 20px",
   color: "#0f1115",
   position: "absolute",
-  top: 130,
+  top: 170,
   left: 0,
   right: 0,
 };
@@ -136,6 +160,18 @@ const input: React.CSSProperties = {
   borderRadius: "5px",
   border: "1px solid #ccc",
   width: "80px",
+};
+
+const drawButton: React.CSSProperties = {
+  position: 'absolute',
+  bottom: 10,
+  left: 10,
+  right: 10,
+  padding: '8px',
+  borderRadius: '5px',
+  border: 'none',
+  color: '#fff',
+  cursor: 'pointer',
 };
 
 export default ControlPanel;

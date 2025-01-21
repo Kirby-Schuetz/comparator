@@ -2,16 +2,13 @@
 // 3D look
 "use client";
 
-import { motion, PanInfo } from "framer-motion";
+import { motion } from "framer-motion";
 import { CSSProperties } from "react";
 
 interface BlockProps {
   id: string;
-  x: number;
-  y: number;
-  points?: number;
   isDraggable: boolean;
-  onDragEnd?: (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => void;
+  onDragEnd?: (event: MouseEvent | TouchEvent | PointerEvent) => void;
   constraintsRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -19,7 +16,6 @@ const styles = {
   cube: {
     width: '40px',
     height: '40px',
-    position: 'absolute' as const,
     transformStyle: 'preserve-3d' as const,
     transform: 'rotateX(-20deg) rotateY(25deg)',
     transition: 'transform 0.2s',
@@ -30,43 +26,25 @@ const styles = {
     height: '40px',
     border: '1px solid rgba(255, 255, 255, 0.2)',
   },
-  front: {
-    transform: 'translateZ(20px)',
-    background: '#ff0088',
-  },
-  back: {
-    transform: 'translateZ(-20px)',
-    background: '#cc006d',
-  },
-  right: {
-    transform: 'rotateY(90deg) translateZ(20px)',
-    background: '#dd0077',
-  },
-  left: {
-    transform: 'rotateY(-90deg) translateZ(20px)',
-    background: '#dd0077',
-  },
-  top: {
-    transform: 'rotateX(90deg) translateZ(20px)',
-    background: '#ff1a9c',
-  },
-  bottom: {
-    transform: 'rotateX(-90deg) translateZ(20px)',
-    background: '#cc006d',
-  },
+  // Color faces
+  front:  { transform: 'translateZ(20px)',  background: '#ff0088' },
+  back:   { transform: 'translateZ(-20px)', background: '#cc006d' },
+  right:  { transform: 'rotateY(90deg) translateZ(20px)',  background: '#dd0077' },
+  left:   { transform: 'rotateY(-90deg) translateZ(20px)', background: '#dd0077' },
+  top:    { transform: 'rotateX(90deg) translateZ(20px)',  background: '#ff1a9c' },
+  bottom: { transform: 'rotateX(-90deg) translateZ(20px)', background: '#cc006d' },
 } as const;
 
-export default function Block({ id, x, y, points, isDraggable, onDragEnd, constraintsRef }: BlockProps) {
+export default function Block({ id, isDraggable, onDragEnd, constraintsRef }: BlockProps) {
   const blockStyle: CSSProperties = {
     ...styles.cube,
-    right: `${x}px`,
-    top: `${y}px`,
     cursor: isDraggable ? 'grab' : 'default',
   };
 
   return (
     <motion.div
       key={id}
+      className="block"
       drag={isDraggable}
       dragConstraints={constraintsRef}
       dragElastic={0.2}
