@@ -3,6 +3,7 @@ export const CONFIG = {
   BOX_WIDTH: 40,
   MAX_BOXES: 10,
   CONTAINER_HEIGHT: 520,
+  CONTAINER_WIDTH: 40,
 } as const;
 
 export interface Box {

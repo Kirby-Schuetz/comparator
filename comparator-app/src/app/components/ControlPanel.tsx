@@ -14,10 +14,10 @@ interface ControlPanelProps {
 }
 
 // Create an interface for column state
-interface ColumnState {
-  isLocked: boolean;
-  count: number;
-}
+// interface ColumnState {
+//   isLocked: boolean;
+//   count: number;
+// }
 
 const ControlPanel = ({ 
   onDrawingModeChange,
