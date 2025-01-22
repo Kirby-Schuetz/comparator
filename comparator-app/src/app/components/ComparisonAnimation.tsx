@@ -26,9 +26,18 @@ export default function ComparisonAnimation({
     else setSymbol('=');
   }, [leftValue, rightValue]);
 
-  // Calculate the midpoint between connection points for symbol placement
-  const midX = (connectionStart.x + connectionEnd.x) / 2;
-  const midY = (connectionStart.y + connectionEnd.y) / 2;
+  // Get the container element
+  const containerElement = document.querySelector('.flex.flex-row.justify-center');
+  
+  let midX = 0;
+  let midY = 0;
+
+  if (containerElement) {
+    const containerRect = containerElement.getBoundingClientRect();
+    // Calculate the middle point of the container
+    midX = containerRect.width / 2;
+    midY = containerRect.height / 2;
+  }
 
   const variants = {
     hidden: { 
@@ -65,10 +74,10 @@ export default function ComparisonAnimation({
       variants={variants}
       style={{
         position: 'absolute',
-        left: midX,
-        top: midY,
+        left: '50%',
+        top: '50%',
         transform: 'translate(-50%, -50%)',
-        fontSize: '2rem',
+        fontSize: '5rem',
         fontWeight: 'bold',
         color: '#ff0088',
         zIndex: 200,
