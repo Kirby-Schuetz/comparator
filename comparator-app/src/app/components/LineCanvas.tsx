@@ -113,10 +113,19 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
     if (!column) return -1;
 
     const blocks = Array.from(column.querySelectorAll('.block'));
-    return blocks.findIndex(block => {
+    
+    // Only allow connections from first (0) or last (blocks.length - 1) blocks
+    const clickedIndex = blocks.findIndex(block => {
       const rect = block.getBoundingClientRect();
       return y >= rect.top && y <= rect.bottom;
     });
+
+    // Return -1 if clicked block is not first or last
+    if (clickedIndex !== 0 && clickedIndex !== blocks.length - 1) {
+      return -1;
+    }
+
+    return clickedIndex;
   };
 
   // Handle canvas click events
