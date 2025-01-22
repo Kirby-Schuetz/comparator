@@ -6,9 +6,12 @@ import Block from './Block';
 import { useBoxManagement } from "../hooks/useBoxManagement";
 import { CONFIG } from "../types/shared";
 
+interface RightColumnProps {
+  isAutoComparatorVisible: boolean;
+}
+
 const styles = {
   container: {
-    width: '40%',
     height: CONFIG.CONTAINER_HEIGHT,
     borderRadius: 5,
     position: "relative" as const,
@@ -24,11 +27,15 @@ const styles = {
   },
 };
 
-export default function RightColumn() {
+export default function RightColumn({ isAutoComparatorVisible }: RightColumnProps) {
   const constraintsRef = useRef<HTMLDivElement>(null);
-  const { boxes, addBox, removeBox } = useBoxManagement('right');
+  const { boxes, addBox, removeBox } = useBoxManagement({ 
+    columnId: 'right',
+    isAutoComparatorVisible 
+  });
 
   const handleDoubleClick = (e: React.MouseEvent) => {
+    if (isAutoComparatorVisible) return; // Prevent adding blocks when guide lines are visible
     console.log('Right column double click event detected');
     e.preventDefault();
     e.stopPropagation();
@@ -58,10 +65,11 @@ export default function RightColumn() {
         style={{
           ...styles.column,
           position: 'relative',
-          cursor: 'pointer',
+          cursor: isAutoComparatorVisible ? 'default' : 'pointer',
           minWidth: CONFIG.BOX_WIDTH,
           minHeight: '100%',
           zIndex: 1,
+          pointerEvents: isAutoComparatorVisible ? 'none' : 'auto',
         }}
       >
         <div 
@@ -78,14 +86,14 @@ export default function RightColumn() {
             top: 0,
             right: '33%',
             width: '100%',
-            pointerEvents: 'auto',
+            pointerEvents: isAutoComparatorVisible ? 'none' : 'auto',
           }}
         >
           {boxes.map((box) => (
             <Block
               key={box.id}
               id={box.id}
-              isDraggable
+              isDraggable={!isAutoComparatorVisible}
               onDragEnd={(event) => handleDragEnd(event, box.id)}
               constraintsRef={constraintsRef as React.RefObject<HTMLDivElement>}
             />

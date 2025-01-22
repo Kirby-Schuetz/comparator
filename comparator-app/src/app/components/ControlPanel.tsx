@@ -1,21 +1,39 @@
 "use client";
 
-import { AnimatePresence } from "motion/react";
-import * as motion from "motion/react-client";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, ReactElement } from "react";
 import { useLeftBox } from "../context/left-box-context";
 import { useRightBox } from "../context/right-box-context";
+import { Column } from './Column/Column';
 
 // Add prop interface
 interface ControlPanelProps {
   onDrawingModeChange: (isDrawing: boolean) => void;
+  onAutoComparator: (leftCount: number, rightCount: number) => void;
+  isAutoComparatorVisible: boolean;
 }
 
-const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement => {
-  const [isVisible, setIsVisible] = useState<boolean>(true);
-  const [isCompareMode, setIsCompareMode] = useState<boolean>(false);
+// Create an interface for column state
+interface ColumnState {
+  isLocked: boolean;
+  count: number;
+}
+
+const ControlPanel = ({ 
+  onDrawingModeChange,
+  onAutoComparator,
+  isAutoComparatorVisible
+}: ControlPanelProps): ReactElement => {
+  const [isVisible, setIsVisible] = useState(true);
+  const [isCompareMode, setIsCompareMode] = useState(false);
   const { leftState, leftDispatch } = useLeftBox();
   const { rightState, rightDispatch } = useRightBox();
+  
+  // Combine related state
+  const [columns, setColumns] = useState({
+    left: { isLocked: false, count: leftState.count },
+    right: { isLocked: false, count: rightState.count }
+  });
 
   const handleColumn1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Math.max(0, Number(e.target.value)), 10);
@@ -27,75 +45,148 @@ const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement 
     rightDispatch({ type: "setCount", count: value });
   };
 
-  // Update the click handler to call the prop
+  // Update the click handler to only handle compare mode
   const handleCompareModeClick = () => {
-    console.log('Current compare mode:', isCompareMode);
     const newMode = !isCompareMode;
     setIsCompareMode(newMode);
     onDrawingModeChange(newMode);
-    console.log('New compare mode:', newMode);
   };
 
+  const handleAutoComparatorClick = () => {
+    onAutoComparator(leftState.count, rightState.count);
+  };
+
+  const styles = {
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      width: 300,
+      gap: "10px",
+      position: "relative",
+    },
+    box: {
+      width: "100%",
+      height: "auto",
+      backgroundColor: "#95a5a6",
+      borderRadius: "10px",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "20px",
+    },
+    button: {
+      backgroundColor: "#0cdcf7",
+      borderRadius: "10px",
+      padding: "10px 20px",
+      color: "#0f1115",
+      width: "100%",
+    },
+    controlContent: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      gap: "20px",
+      width: "100%",
+    },
+    column: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+      flex: 1,
+    },
+    buttonContainer: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+      width: "100%",
+    },
+    label: {
+      fontSize: "14px",
+      fontWeight: "bold",
+    },
+    input: {
+      padding: "8px",
+      borderRadius: "5px",
+      border: "1px solid #ccc",
+      width: "80px",
+    },
+    buttonStyle: {
+      padding: '8px',
+      borderRadius: '5px',
+      border: 'none',
+      cursor: 'pointer',
+      width: '100%',
+    },
+    compareButton: {
+      padding: '8px',
+      borderRadius: '5px',
+      border: 'none',
+      color: '#fff',
+      cursor: 'pointer',
+      width: '100%',
+    },
+  } as const;
+
   return (
-    <div style={container}>
+    <div style={styles.container}>
       <AnimatePresence initial={false}>
         {isVisible && (
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
-            style={box}
+            style={styles.box}
             key="box"
           >
-            <div style={controlContent}>
-              <div style={column}>
-                <label style={label} htmlFor="leftColumnInput">
-                  Left Column
-                </label>
-                <input
-                  id="leftColumnInput"
-                  type="text"
-                  value={leftState.count}
-                  onChange={handleColumn1Change}
-                  style={input}
-                  min={0}
-                  max={10}
-                  placeholder="Enter number of blocks"
-                />
-              </div>
+            <div style={styles.controlContent}>
+              <Column
+                id="left"
+                state={columns.left}
+                onLockToggle={() => setColumns(prev => ({
+                  ...prev,
+                  left: { ...prev.left, isLocked: !prev.left.isLocked }
+                }))}
+                onCountChange={handleColumn1Change}
+              />
+              <Column
+                id="right"
+                state={columns.right}
+                onLockToggle={() => setColumns(prev => ({
+                  ...prev,
+                  right: { ...prev.right, isLocked: !prev.right.isLocked }
+                }))}
+                onCountChange={handleColumn2Change}
+              />
             </div>
-            <div style={controlContent}>
-              <div style={column}>
-                <label style={label} htmlFor="rightColumnInput">
-                  Right Column
-                </label>
-                <input
-                  id="rightColumnInput"
-                  type="text"
-                  value={rightState.count}
-                  onChange={handleColumn2Change}
-                  style={input}
-                  min={0}
-                  max={10}
-                  placeholder="Enter number of blocks"
-                />
-              </div>
+
+            <div style={styles.buttonContainer}>
+              <motion.button
+                style={{
+                  ...styles.compareButton,
+                  backgroundColor: isCompareMode ? '#ff0088' : '#0cdcf7',
+                }}
+                onClick={handleCompareModeClick}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isCompareMode ? 'Exit Compare Mode' : 'Enter Compare Mode'}
+              </motion.button>
+
+              <motion.button
+                style={{
+                  ...styles.compareButton,
+                  backgroundColor: isAutoComparatorVisible ? '#ff0088' : '#0cdcf7',
+                }}
+                onClick={handleAutoComparatorClick}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isAutoComparatorVisible ? 'Turn Off Auto Comparison' : 'Turn On Auto Comparison'}
+              </motion.button>
             </div>
-            <motion.button
-              style={{
-                ...compareButton,
-                backgroundColor: isCompareMode ? '#ff0088' : '#0cdcf7',
-              }}
-              onClick={handleCompareModeClick}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isCompareMode ? 'Exit Compare Mode' : 'Enter Compare Mode'}
-            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
       <motion.button
-        style={button}
+        style={styles.button}
         onClick={() => setIsVisible(!isVisible)}
         whileTap={{ y: 1 }}
       >
@@ -103,75 +194,6 @@ const ControlPanel = ({ onDrawingModeChange }: ControlPanelProps): ReactElement 
       </motion.button>
     </div>
   );
-};
-
-const container: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: 300,
-  gap: "20px",
-  position: "relative",
-};
-
-const box: React.CSSProperties = {
-  width: "100%",
-  height: "160px",
-  backgroundColor: "#95a5a6",
-  borderRadius: "10px",
-  padding: "10px",
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-around",
-  position: "relative",
-};
-
-const button: React.CSSProperties = {
-  backgroundColor: "#0cdcf7",
-  borderRadius: "10px",
-  padding: "10px 20px",
-  color: "#0f1115",
-  position: "absolute",
-  top: 170,
-  left: 0,
-  right: 0,
-};
-
-const controlContent: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  gap: "20px",
-  width: "100%",
-};
-
-const column: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "10px",
-};
-
-const label: React.CSSProperties = {
-  fontSize: "14px",
-  fontWeight: "bold",
-};
-
-const input: React.CSSProperties = {
-  padding: "8px",
-  borderRadius: "5px",
-  border: "1px solid #ccc",
-  width: "80px",
-};
-
-const compareButton: React.CSSProperties = {
-  position: 'absolute',
-  bottom: 10,
-  left: 10,
-  right: 10,
-  padding: '8px',
-  borderRadius: '5px',
-  border: 'none',
-  color: '#fff',
-  cursor: 'pointer',
 };
 
 export default ControlPanel;

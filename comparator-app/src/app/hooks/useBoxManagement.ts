@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
 import { useLeftBox } from "../context/left-box-context";
 import { useRightBox } from "../context/right-box-context";
-import { Box, CONFIG } from "../types/shared";
+import { Box, CONFIG, ColumnId } from "../types/shared";
+
+interface UseBoxManagementProps {
+  columnId: ColumnId;
+  isAutoComparatorVisible: boolean;
+}
 
 // Configuration
-export function useBoxManagement(columnId: 'left' | 'right') {
+export function useBoxManagement({ columnId, isAutoComparatorVisible }: UseBoxManagementProps) {
   const [boxes, setBoxes] = useState<Box[]>([]);
   const { leftState, leftDispatch } = useLeftBox();
   const { rightState, rightDispatch } = useRightBox();
@@ -66,6 +71,8 @@ export function useBoxManagement(columnId: 'left' | 'right') {
   };
 
   const addBox = () => {
+    if (isAutoComparatorVisible) return; // Prevent adding boxes when guide lines are visible
+    
     if (boxes.length >= CONFIG.MAX_BOXES) return;
     console.log('Adding box');
     const newId = crypto.randomUUID();

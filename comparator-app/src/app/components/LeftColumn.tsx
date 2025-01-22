@@ -18,7 +18,6 @@ import { CONFIG } from "../types/shared";
 // Styles
 const styles = {
   container: {
-    width: '40%',
     height: CONFIG.CONTAINER_HEIGHT,
     borderRadius: 5,
     position: "relative" as const,
@@ -35,12 +34,20 @@ const styles = {
   },
 };
 
-export default function LeftColumn() {
+interface LeftColumnProps {
+  isAutoComparatorVisible: boolean;
+}
+
+export default function LeftColumn({ isAutoComparatorVisible }: LeftColumnProps) {
   const constraintsRef = useRef<HTMLDivElement>(null);
-  const { boxes, addBox, removeBox } = useBoxManagement('left');
+  const { boxes, addBox, removeBox } = useBoxManagement({ 
+    columnId: 'left',
+    isAutoComparatorVisible 
+  });
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    if (e.currentTarget !== e.target) return; // Only trigger if clicking the column itself
+    if (isAutoComparatorVisible) return; // Prevent adding blocks when guide lines are visible
+    if (e.currentTarget !== e.target) return;
     console.log('Left column double click event detected');
     e.preventDefault();
     e.stopPropagation();
@@ -70,10 +77,11 @@ export default function LeftColumn() {
         style={{
           ...styles.column,
           position: 'relative',
-          cursor: 'pointer',
+          cursor: isAutoComparatorVisible ? 'default' : 'pointer',
           minWidth: CONFIG.BOX_WIDTH,
           minHeight: '100%',
           zIndex: 1,
+          pointerEvents: isAutoComparatorVisible ? 'none' : 'auto',
         }}
       >
         <div 
@@ -90,14 +98,14 @@ export default function LeftColumn() {
             top: 0,
             left: '33%',
             width: '100%',
-            pointerEvents: 'auto',
+            pointerEvents: isAutoComparatorVisible ? 'none' : 'auto',
           }}
         >
           {boxes.map((box) => (
             <Block
               key={box.id}
               id={box.id}
-              isDraggable
+              isDraggable={!isAutoComparatorVisible}
               onDragEnd={(event) => handleDragEnd(event, box.id)}
               constraintsRef={constraintsRef as React.RefObject<HTMLDivElement>}
             />

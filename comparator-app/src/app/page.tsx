@@ -8,8 +8,42 @@ import ColumnContainer from "./components/ColumnContainer";
 import { LineCanvas } from './components/LineCanvas';
 import { useState } from "react";
 
+interface Connection {
+  start: number;
+  end: number;
+}
+
 export default function Home() {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [isAutoComparatorVisible, setIsAutoComparatorVisible] = useState(false);
+  const [connections, setConnections] = useState<Connection[]>([]);
+
+  const handleAutoComparator = (leftCount: number, rightCount: number) => {
+    const newIsVisible = !isAutoComparatorVisible;
+    setIsAutoComparatorVisible(newIsVisible);
+    
+    if (!newIsVisible) {
+      setConnections(prev => prev.filter(conn => 
+        !(conn.start === 0 && conn.end === 0) && 
+        !(conn.start === leftCount - 1 && conn.end === rightCount - 1)
+      ));
+      return;
+    }
+
+    if (leftCount === 0 || rightCount === 0) return;
+
+    const manualConnections = connections.filter(conn => 
+      !(conn.start === 0 && conn.end === 0) && 
+      !(conn.start === leftCount - 1 && conn.end === rightCount - 1)
+    );
+    
+    const autoConnections: Connection[] = [
+      { start: 0, end: 0 },
+      { start: leftCount - 1, end: rightCount - 1 }
+    ];
+    
+    setConnections([...manualConnections, ...autoConnections]);
+  };
   
   return (
     <div className="flex flex-col items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -26,17 +60,21 @@ export default function Home() {
         </div>
         <LeftBoxProvider>
           <RightBoxProvider>
-            <div className="w-full">
-              <ColumnContainer />
-            </div>
+            <ColumnContainer isAutoComparatorVisible={isAutoComparatorVisible} />
             <div className="w-full flex justify-center">
-              <ControlPanel onDrawingModeChange={setIsDrawingMode} />
+              <ControlPanel 
+                onDrawingModeChange={setIsDrawingMode}
+                onAutoComparator={handleAutoComparator}
+                isAutoComparatorVisible={isAutoComparatorVisible}
+              />
             </div>
           </RightBoxProvider>
         </LeftBoxProvider>
-        <div className="w-full">
-          <LineCanvas isDrawingMode={isDrawingMode} />
-        </div>
+        <LineCanvas 
+          isDrawingMode={isDrawingMode} 
+          connections={connections}
+          setConnections={setConnections}
+        />
       </main>
     </div>
   );
