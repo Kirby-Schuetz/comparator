@@ -22,6 +22,7 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point | null>(null);
+  const [currentPoint, setCurrentPoint] = useState<Point | null>(null);
 
   // Setup canvas dimensions and context
   const setupCanvas = (canvas: HTMLCanvasElement) => {
@@ -69,17 +70,9 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
   };
 
   // Draw all connections
-  const drawConnections = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const setup = setupCanvas(canvas);
-    if (!setup) return;
-
-    const { ctx, containerRect } = setup;
-    
+  const drawConnections = (ctx: CanvasRenderingContext2D, containerRect: DOMRect) => {
     // Clear the canvas before redrawing
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
     
     const leftColumn = document.querySelector('.left-column');
     const rightColumn = document.querySelector('.right-column');
@@ -115,8 +108,11 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
   };
 
   // Find block index from click coordinates
-  const findBlockIndex = (y: number): number => {
-    const blocks = Array.from(document.querySelectorAll('.block'));
+  const findBlockIndex = (y: number, isLeftColumn: boolean): number => {
+    const column = document.querySelector(isLeftColumn ? '.left-column' : '.right-column');
+    if (!column) return -1;
+
+    const blocks = Array.from(column.querySelectorAll('.block'));
     return blocks.findIndex(block => {
       const rect = block.getBoundingClientRect();
       return y >= rect.top && y <= rect.bottom;
@@ -138,8 +134,8 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       setStartPoint({ x, y });
       setIsDrawing(true);
     } else if (startPoint) {
-      const startBlockIndex = findBlockIndex(startPoint.y + rect.top);
-      const endBlockIndex = findBlockIndex(e.clientY);
+      const startBlockIndex = findBlockIndex(startPoint.y + rect.top, true);  // Left column
+      const endBlockIndex = findBlockIndex(e.clientY, false);  // Right column
       
       if (startBlockIndex !== -1 && endBlockIndex !== -1) {
         setConnections(prev => [...prev, {
@@ -150,22 +146,68 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       
       setIsDrawing(false);
       setStartPoint(null);
+      setCurrentPoint(null);  // Clear the preview point
     }
   };
 
-  // Setup event listeners and handle redraws
-  useEffect(() => {
-    console.log('Effect triggered with connections:', connections);
-    const scrollHandler = () => requestAnimationFrame(drawConnections);
-    window.addEventListener('scroll', scrollHandler);
-    window.addEventListener('resize', drawConnections);
-    drawConnections();
+  // Add mouse move handler
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
     
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    setCurrentPoint({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
+  // Update the drawing effect to include both preview and maintenance
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const drawAll = () => {
+      const setup = setupCanvas(canvas);
+      if (!setup) return;
+
+      const { ctx, containerRect } = setup;
+      
+      // Clear the canvas before redrawing
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw existing connections
+      drawConnections(ctx, containerRect);
+      
+      // Draw preview line if we're currently drawing
+      if (isDrawing && startPoint && currentPoint) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]); // Make the preview line dashed
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(currentPoint.x, currentPoint.y);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset line style
+      }
+    };
+
+    // Set up event listeners
+    const scrollHandler = () => requestAnimationFrame(drawAll);
+    window.addEventListener('scroll', scrollHandler);
+    window.addEventListener('resize', drawAll);
+    
+    // Initial draw
+    drawAll();
+    
+    // Cleanup
     return () => {
       window.removeEventListener('scroll', scrollHandler);
-      window.removeEventListener('resize', drawConnections);
+      window.removeEventListener('resize', drawAll);
     };
-  }, [connections]);
+  }, [connections, isDrawing, startPoint, currentPoint]);
 
   return (
     <div style={{
@@ -181,6 +223,7 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       <canvas
         ref={canvasRef}
         onClick={handleCanvasClick}
+        onMouseMove={handleMouseMove}
         style={{
           width: '100%',
           height: '100%',
