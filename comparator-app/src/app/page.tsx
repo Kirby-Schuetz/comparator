@@ -84,30 +84,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Create a wrapper component that uses the hooks inside the providers
-// function ComparisonAnimationWrapper({ 
-//   connections, 
-//   isAnimationPlaying 
-// }: { 
-//   connections: Connection[],
-//   isAnimationPlaying: boolean 
-// }) {
-//   const { leftState } = useLeftBox();
-//   const { rightState } = useRightBox();
-
-//   return (
-//     <>
-//       {connections.map((connection, index) => (
-//         <ComparisonAnimation
-//           key={index}
-//           leftValue={leftState.count}
-//           rightValue={rightState.count}
-//           isPlaying={isAnimationPlaying}
-//           connectionStart={connection.start}
-//           connectionEnd={connection.end}
-//         />
-//       ))}
-//     </>
-//   );
-// }
