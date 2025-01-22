@@ -14,3 +14,9 @@ export interface Box {
 
 
 export type ColumnId = 'left' | 'right'; 
+
+
+export interface Connection {
+  start: number;
+  end: number;
+}

@@ -2,17 +2,13 @@
 import Image from "next/image";
 import ControlPanel from "./components/ControlPanel";
 // import Blocks from "./components/Blocks";
-import { LeftBoxProvider, useLeftBox } from "./context/left-box-context";
-import { RightBoxProvider, useRightBox } from "./context/right-box-context";
+import { LeftBoxProvider } from "./context/left-box-context";
+import { RightBoxProvider } from "./context/right-box-context";
 import ColumnContainer from "./components/ColumnContainer";
 import { LineCanvas } from './components/LineCanvas';
 import { useState } from "react";
-import { ComparisonAnimation } from './components/ComparisonAnimation';
-
-interface Connection {
-  start: number;
-  end: number;
-}
+import ComparisonAnimationWrapper from "./components/ComparisonAnimationWrapper";
+import { Connection } from "./types/shared";
 
 export default function Home() {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
@@ -90,28 +86,28 @@ export default function Home() {
 }
 
 // Create a wrapper component that uses the hooks inside the providers
-function ComparisonAnimationWrapper({ 
-  connections, 
-  isAnimationPlaying 
-}: { 
-  connections: Connection[],
-  isAnimationPlaying: boolean 
-}) {
-  const { leftState } = useLeftBox();
-  const { rightState } = useRightBox();
+// function ComparisonAnimationWrapper({ 
+//   connections, 
+//   isAnimationPlaying 
+// }: { 
+//   connections: Connection[],
+//   isAnimationPlaying: boolean 
+// }) {
+//   const { leftState } = useLeftBox();
+//   const { rightState } = useRightBox();
 
-  return (
-    <>
-      {connections.map((connection, index) => (
-        <ComparisonAnimation
-          key={index}
-          leftValue={leftState.count}
-          rightValue={rightState.count}
-          isPlaying={isAnimationPlaying}
-          connectionStart={connection.start}
-          connectionEnd={connection.end}
-        />
-      ))}
-    </>
-  );
-}
+//   return (
+//     <>
+//       {connections.map((connection, index) => (
+//         <ComparisonAnimation
+//           key={index}
+//           leftValue={leftState.count}
+//           rightValue={rightState.count}
+//           isPlaying={isAnimationPlaying}
+//           connectionStart={connection.start}
+//           connectionEnd={connection.end}
+//         />
+//       ))}
+//     </>
+//   );
+// }

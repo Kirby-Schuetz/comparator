@@ -11,7 +11,7 @@ interface ComparisonAnimationProps {
   connectionEnd: { x: number; y: number };
 }
 
-export function ComparisonAnimation({ 
+export default function ComparisonAnimation({ 
   leftValue, 
   rightValue, 
   isPlaying,
