@@ -25,12 +25,12 @@ export const Column = ({
       }}
     >
       <label style={styles.label} htmlFor={`${id}ColumnInput`}>
-        {state.isLocked ? 'Label' : 'Input'}
+        {id === 'left' ? 'Left Column' : 'Right Column'}
       </label>
     </button>
     <input
       id={`${id}ColumnInput`}
-      type="text"
+      type="number"
       value={state.count}
       onChange={onCountChange}
       style={styles.input}

@@ -2,11 +2,12 @@
 import Image from "next/image";
 import ControlPanel from "./components/ControlPanel";
 // import Blocks from "./components/Blocks";
-import { LeftBoxProvider } from "./context/left-box-context";
-import { RightBoxProvider } from "./context/right-box-context";
+import { LeftBoxProvider, useLeftBox } from "./context/left-box-context";
+import { RightBoxProvider, useRightBox } from "./context/right-box-context";
 import ColumnContainer from "./components/ColumnContainer";
 import { LineCanvas } from './components/LineCanvas';
 import { useState } from "react";
+import { ComparisonAnimation } from './components/ComparisonAnimation';
 
 interface Connection {
   start: number;
@@ -16,6 +17,7 @@ interface Connection {
 export default function Home() {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [isAutoComparatorVisible, setIsAutoComparatorVisible] = useState(false);
+  const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
   const [connections, setConnections] = useState<Connection[]>([]);
 
   const handleAutoComparator = (leftCount: number, rightCount: number) => {
@@ -66,16 +68,50 @@ export default function Home() {
                 onDrawingModeChange={setIsDrawingMode}
                 onAutoComparator={handleAutoComparator}
                 isAutoComparatorVisible={isAutoComparatorVisible}
+                onPlayAnimation={setIsAnimationPlaying}
+                isAnimationPlaying={isAnimationPlaying}
               />
             </div>
+            <LineCanvas 
+              isDrawingMode={isDrawingMode} 
+              connections={connections}
+              setConnections={setConnections}
+            />
+            
+            <ComparisonAnimationWrapper 
+              connections={connections}
+              isAnimationPlaying={isAnimationPlaying}
+            />
           </RightBoxProvider>
         </LeftBoxProvider>
-        <LineCanvas 
-          isDrawingMode={isDrawingMode} 
-          connections={connections}
-          setConnections={setConnections}
-        />
       </main>
     </div>
+  );
+}
+
+// Create a wrapper component that uses the hooks inside the providers
+function ComparisonAnimationWrapper({ 
+  connections, 
+  isAnimationPlaying 
+}: { 
+  connections: Connection[],
+  isAnimationPlaying: boolean 
+}) {
+  const { leftState } = useLeftBox();
+  const { rightState } = useRightBox();
+
+  return (
+    <>
+      {connections.map((connection, index) => (
+        <ComparisonAnimation
+          key={index}
+          leftValue={leftState.count}
+          rightValue={rightState.count}
+          isPlaying={isAnimationPlaying}
+          connectionStart={connection.start}
+          connectionEnd={connection.end}
+        />
+      ))}
+    </>
   );
 }

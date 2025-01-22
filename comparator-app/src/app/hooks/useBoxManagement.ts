@@ -57,6 +57,8 @@ export function useBoxManagement({ columnId, isAutoComparatorVisible }: UseBoxMa
   }, [boxes, state.count, columnId]);
 
   const removeBox = (boxId: string) => {
+    dispatch({ type: "decrement" });
+    
     const updatedBoxes = boxes.filter(box => box.id !== boxId);
     const columnBoxes = updatedBoxes.filter(box => 
       columnId === 'left' ? box.x === 0 : box.x === CONFIG.CONTAINER_WIDTH - CONFIG.BOX_WIDTH
@@ -67,16 +69,16 @@ export function useBoxManagement({ columnId, isAutoComparatorVisible }: UseBoxMa
       y: CONFIG.CONTAINER_HEIGHT - (index + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING),
     }));
     setBoxes(repositionedBoxes);
-    dispatch({ type: "decrement" });
   };
 
   const addBox = () => {
-    if (isAutoComparatorVisible) return; // Prevent adding boxes when guide lines are visible
-    
+    if (isAutoComparatorVisible) return;
     if (boxes.length >= CONFIG.MAX_BOXES) return;
-    console.log('Adding box');
+    
+    dispatch({ type: "increment" });
+    
     const newId = crypto.randomUUID();
-    const newY = CONFIG.CONTAINER_HEIGHT - (state.count + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
+    const newY = CONFIG.CONTAINER_HEIGHT - (boxes.length + 1) * (CONFIG.BOX_WIDTH + CONFIG.SPACING);
     
     const newBoxes = [...boxes, { 
       id: newId, 
@@ -84,7 +86,6 @@ export function useBoxManagement({ columnId, isAutoComparatorVisible }: UseBoxMa
       y: newY 
     }];
     setBoxes(newBoxes);
-    dispatch({ type: "increment" });
   };
 
   return { boxes, removeBox, addBox };

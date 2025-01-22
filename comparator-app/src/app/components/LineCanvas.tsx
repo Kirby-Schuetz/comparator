@@ -184,7 +184,7 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       // Draw preview line if we're currently drawing
       if (isDrawing && startPoint && currentPoint) {
         ctx.beginPath();
-        ctx.strokeStyle = '#666';
+        ctx.strokeStyle = '#C0C0C0';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]); // Make the preview line dashed
         ctx.moveTo(startPoint.x, startPoint.y);

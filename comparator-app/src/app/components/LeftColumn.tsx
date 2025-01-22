@@ -46,7 +46,7 @@ export default function LeftColumn({ isAutoComparatorVisible }: LeftColumnProps)
   });
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    if (isAutoComparatorVisible) return; // Prevent adding blocks when guide lines are visible
+    if (isAutoComparatorVisible) return;
     if (e.currentTarget !== e.target) return;
     console.log('Left column double click event detected');
     e.preventDefault();

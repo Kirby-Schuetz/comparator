@@ -11,6 +11,8 @@ interface ControlPanelProps {
   onDrawingModeChange: (isDrawing: boolean) => void;
   onAutoComparator: (leftCount: number, rightCount: number) => void;
   isAutoComparatorVisible: boolean;
+  onPlayAnimation: (isPlaying: boolean) => void;
+  isAnimationPlaying: boolean;
 }
 
 // Create an interface for column state
@@ -22,17 +24,19 @@ interface ControlPanelProps {
 const ControlPanel = ({ 
   onDrawingModeChange,
   onAutoComparator,
-  isAutoComparatorVisible
+  isAutoComparatorVisible,
+  onPlayAnimation,
+  isAnimationPlaying
 }: ControlPanelProps): ReactElement => {
   const [isVisible, setIsVisible] = useState(true);
   const [isCompareMode, setIsCompareMode] = useState(false);
   const { leftState, leftDispatch } = useLeftBox();
   const { rightState, rightDispatch } = useRightBox();
   
-  // Combine related state
+  // Simplify to just track locked state
   const [columns, setColumns] = useState({
-    left: { isLocked: false, count: leftState.count },
-    right: { isLocked: false, count: rightState.count }
+    left: { isLocked: false },
+    right: { isLocked: false }
   });
 
   const handleColumn1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,7 +145,10 @@ const ControlPanel = ({
             <div style={styles.controlContent}>
               <Column
                 id="left"
-                state={columns.left}
+                state={{
+                  isLocked: columns.left.isLocked,
+                  count: leftState.count
+                }}
                 onLockToggle={() => setColumns(prev => ({
                   ...prev,
                   left: { ...prev.left, isLocked: !prev.left.isLocked }
@@ -150,7 +157,10 @@ const ControlPanel = ({
               />
               <Column
                 id="right"
-                state={columns.right}
+                state={{
+                  isLocked: columns.right.isLocked,
+                  count: rightState.count
+                }}
                 onLockToggle={() => setColumns(prev => ({
                   ...prev,
                   right: { ...prev.right, isLocked: !prev.right.isLocked }
@@ -180,6 +190,17 @@ const ControlPanel = ({
                 whileTap={{ scale: 0.95 }}
               >
                 {isAutoComparatorVisible ? 'Turn Off Auto Comparison' : 'Turn On Auto Comparison'}
+              </motion.button>
+
+              <motion.button
+                style={{
+                  ...styles.compareButton,
+                  backgroundColor: isAnimationPlaying ? '#ff0088' : '#0cdcf7',
+                }}
+                onClick={() => onPlayAnimation(!isAnimationPlaying)}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isAnimationPlaying ? 'Stop Animation' : 'Play Animation'}
               </motion.button>
             </div>
           </motion.div>
