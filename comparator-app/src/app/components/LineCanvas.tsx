@@ -113,9 +113,7 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
     if (!column) return -1;
 
     const blocks = Array.from(column.querySelectorAll('.block'));
-    
-    // Only allow connections from first (0) or last (blocks.length - 1) blocks
-    const clickedIndex = blocks.findIndex(block => {
+    return blocks.findIndex(block => {
       const rect = block.getBoundingClientRect();
       return y >= rect.top && y <= rect.bottom;
     });
@@ -217,6 +215,13 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       window.removeEventListener('resize', drawAll);
     };
   }, [connections, isDrawing, startPoint, currentPoint]);
+
+  // Add effect to clear connections when drawing mode is turned off
+  useEffect(() => {
+    if (!isDrawingMode) {
+      setConnections([]);
+    }
+  }, [isDrawingMode, setConnections]);
 
   return (
     <div style={{

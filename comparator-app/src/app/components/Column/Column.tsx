@@ -6,6 +6,7 @@ interface ColumnProps {
     isLocked: boolean;
     count: number;
   };
+  label: string;
   onLockToggle: () => void;
   onCountChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -13,6 +14,7 @@ interface ColumnProps {
 export const Column = ({ 
   id, 
   state, 
+  label,
   onLockToggle, 
   onCountChange,
 }: ColumnProps) => (
@@ -25,7 +27,7 @@ export const Column = ({
       }}
     >
       <label style={styles.label} htmlFor={`${id}ColumnInput`}>
-        {id === 'left' ? 'Left Column' : 'Right Column'}
+        {label}
       </label>
     </button>
     <input

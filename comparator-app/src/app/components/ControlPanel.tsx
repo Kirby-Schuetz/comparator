@@ -15,12 +15,6 @@ interface ControlPanelProps {
   isAnimationPlaying: boolean;
 }
 
-// Create an interface for column state
-// interface ColumnState {
-//   isLocked: boolean;
-//   count: number;
-// }
-
 const ControlPanel = ({ 
   onDrawingModeChange,
   onAutoComparator,
@@ -149,6 +143,7 @@ const ControlPanel = ({
                   isLocked: columns.left.isLocked,
                   count: leftState.count
                 }}
+                label={columns.left.isLocked ? "Label" : "Input"}
                 onLockToggle={() => setColumns(prev => ({
                   ...prev,
                   left: { ...prev.left, isLocked: !prev.left.isLocked }
@@ -161,6 +156,7 @@ const ControlPanel = ({
                   isLocked: columns.right.isLocked,
                   count: rightState.count
                 }}
+                label={columns.right.isLocked ? "Label" : "Input"}
                 onLockToggle={() => setColumns(prev => ({
                   ...prev,
                   right: { ...prev.right, isLocked: !prev.right.isLocked }
