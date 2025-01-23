@@ -12,7 +12,9 @@ export const BlockStyles = {
       height: '100%',
       backgroundColor: '#64ffda',
       boxShadow: '0 0 10px rgba(100, 255, 218, 0.5)',
-      border: '1px solid rgba(100, 255, 218, 0.8)',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: 'rgba(100, 255, 218, 0.8)',
     },
     '&:hover': {
       transform: 'rotateX(-20deg) rotateY(25deg) scale(1.05)',

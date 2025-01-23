@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react';
+import { CONTROLS } from '../constants/controls';
 
 export enum FacePosition {
   FRONT = 'front',
@@ -18,14 +19,16 @@ const faceStyles = {
     position: 'absolute' as const,
     width: 'var(--block-size)',
     height: 'var(--block-size)',
-    border: '1px solid rgba(12, 220, 247, 0.2)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: `rgba(12, 220, 247, 0.2)`,
     boxShadow: 'inset 0 0 10px rgba(12, 220, 247, 0.1)',
     transition: 'all 0.2s ease',
   },
   transforms: {
-    [FacePosition.FRONT]:  { 
-      transform: 'translateZ(var(--block-half))',  
-      background: 'linear-gradient(135deg, rgba(12, 220, 247, 0.8) 0%, rgba(10, 154, 240, 0.8) 100%)',
+    [FacePosition.FRONT]: {
+      transform: 'translateZ(var(--block-half))',
+      background: `linear-gradient(135deg, rgba(12, 220, 247, 0.8) 0%, ${CONTROLS.COLORS.ACTIVE} 100%)`,
     },
     [FacePosition.BACK]:   { 
       transform: 'translateZ(calc(var(--block-half) * -1))', 

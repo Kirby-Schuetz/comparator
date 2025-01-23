@@ -14,6 +14,7 @@ interface ControlPanelProps {
   isAutoComparatorVisible: boolean;
   onPlayAnimation: (isPlaying: boolean) => void;
   isAnimationPlaying: boolean;
+  onReset: () => void;
 }
 
 const ControlPanel = ({ 
@@ -21,7 +22,8 @@ const ControlPanel = ({
   onAutoComparator,
   isAutoComparatorVisible,
   onPlayAnimation,
-  isAnimationPlaying
+  isAnimationPlaying,
+  onReset
 }: ControlPanelProps): ReactElement => {
   const [isVisible, setIsVisible] = useState(true);
   const [isCompareMode, setIsCompareMode] = useState(false);
@@ -84,6 +86,26 @@ const ControlPanel = ({
     }
   };
 
+  // Add reset handler
+  const handleReset = () => {
+    // Reset local state
+    setIsCompareMode(false);
+    onDrawingModeChange(false);
+    
+    // Reset columns
+    setColumns({
+      left: { isLocked: false },
+      right: { isLocked: false }
+    });
+    
+    // Reset box counts
+    leftDispatch({ type: "setCount", count: 0 });
+    rightDispatch({ type: "setCount", count: 0 });
+    
+    // Call parent reset handler
+    onReset();
+  };
+
   const styles = {
     container: {
       display: "flex",
@@ -133,22 +155,26 @@ const ControlPanel = ({
       fontWeight: "bold",
     },
     input: {
-      padding: "8px",
-      borderRadius: "5px",
-      border: "1px solid #ccc",
-      width: "80px",
+      padding: '8px',
+      borderRadius: '5px',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: '#ccc',
+      width: '80px',
     },
     buttonStyle: {
       padding: '8px',
       borderRadius: '5px',
-      border: 'none',
+      borderWidth: '0',
+      borderStyle: 'none',
       cursor: 'pointer',
       width: '100%',
     },
     compareButton: {
       padding: '8px',
       borderRadius: '5px',
-      border: 'none',
+      borderWidth: '0',
+      borderStyle: 'none',
       color: '#fff',
       cursor: 'pointer',
       width: '100%',
@@ -162,7 +188,8 @@ const ControlPanel = ({
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
-      border: 'none',
+      borderWidth: '0',
+      borderStyle: 'none',
       color: 'white',
       cursor: 'pointer',
       boxShadow: '0 2px 10px rgba(12, 220, 247, 0.3)',
@@ -170,6 +197,28 @@ const ControlPanel = ({
       '&:hover': {
         transform: 'scale(1.05)',
         boxShadow: '0 4px 15px rgba(12, 220, 247, 0.4)',
+      },
+    },
+    activeButton: {
+      backgroundColor: 'rgba(100, 200, 255, 0.25)',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: 'rgba(100, 200, 255, 0.5)',
+      color: '#64c8ff',
+      fontWeight: '800',
+      textShadow: '0 0 10px rgba(100, 200, 255, 0.3)',
+    },
+    resetButton: {
+      backgroundColor: 'rgba(255, 100, 100, 0.15)',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: 'rgba(255, 100, 100, 0.4)',
+      color: '#fff',
+      fontWeight: '800',
+      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+      '&:hover': {
+        backgroundColor: 'rgba(255, 100, 100, 0.25)',
+        borderColor: 'rgba(255, 100, 100, 0.5)',
       },
     },
   } as const;
@@ -192,7 +241,7 @@ const ControlPanel = ({
                   isLocked: columns.left.isLocked,
                   count: leftState.count
                 }}
-                label={columns.left.isLocked ? "Label" : "Input"}
+                label={"Left"}
                 onLockToggle={() => setColumns(prev => ({
                   ...prev,
                   left: { ...prev.left, isLocked: !prev.left.isLocked }
@@ -223,7 +272,7 @@ const ControlPanel = ({
                   isLocked: columns.right.isLocked,
                   count: rightState.count
                 }}
-                label={columns.right.isLocked ? "Label" : "Input"}
+                label={"Right"}
                 onLockToggle={() => setColumns(prev => ({
                   ...prev,
                   right: { ...prev.right, isLocked: !prev.right.isLocked }
@@ -236,12 +285,7 @@ const ControlPanel = ({
               <motion.button
                 style={{
                   ...styles.compareButton,
-                  backgroundColor: isCompareMode
-                    ? 'rgba(10, 154, 240, 0.1)'
-                    : 'rgba(12, 220, 247, 0.1)',
-                  borderColor: isCompareMode
-                    ? 'rgba(10, 154, 240, 0.3)'
-                    : 'rgba(12, 220, 247, 0.3)',
+                  ...(isCompareMode ? styles.activeButton : {}),
                 }}
                 onClick={handleCompareModeClick}
                 whileTap={{ scale: 0.95 }}
@@ -252,17 +296,23 @@ const ControlPanel = ({
               <motion.button
                 style={{
                   ...styles.compareButton,
-                  backgroundColor: isAutoComparatorVisible
-                    ? 'rgba(10, 154, 240, 0.1)'
-                    : 'rgba(12, 220, 247, 0.1)',
-                  borderColor: isAutoComparatorVisible
-                    ? 'rgba(10, 154, 240, 0.3)'
-                    : 'rgba(12, 220, 247, 0.3)',
+                  ...(isAutoComparatorVisible ? styles.activeButton : {}),
                 }}
                 onClick={handleAutoComparatorClick}
                 whileTap={{ scale: 0.95 }}
               >
                 {isAutoComparatorVisible ? 'Turn Off Auto Comparison' : 'Turn On Auto Comparison'}
+              </motion.button>
+
+              <motion.button
+                style={{
+                  ...styles.compareButton,
+                  ...styles.resetButton,
+                }}
+                onClick={handleReset}
+                whileTap={{ scale: 0.95 }}
+              >
+                Reset All
               </motion.button>
             </div>
           </motion.div>

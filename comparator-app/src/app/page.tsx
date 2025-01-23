@@ -42,6 +42,15 @@ export default function Home() {
     
     setConnections([...manualConnections, ...autoConnections]);
   };
+
+  const handleReset = () => {
+    // Clear connections
+    setConnections([]);
+    // Turn off animation if playing
+    setIsAnimationPlaying(false);
+    // Turn off auto comparator if on
+    setIsAutoComparatorVisible(false);
+  };
   
   return (
     <div className="flex flex-col items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -66,10 +75,11 @@ export default function Home() {
                 isAutoComparatorVisible={isAutoComparatorVisible}
                 onPlayAnimation={setIsAnimationPlaying}
                 isAnimationPlaying={isAnimationPlaying}
+                onReset={handleReset}
               />
             </div>
             <LineCanvas 
-              isDrawingMode={isDrawingMode} 
+              isDrawingMode={isDrawingMode && !isAnimationPlaying}
               connections={connections}
               setConnections={setConnections}
             />

@@ -7,8 +7,8 @@ interface ComparisonAnimationProps {
   leftValue: number;
   rightValue: number;
   isPlaying: boolean;
-  connectionStart: { x: number; y: number };
-  connectionEnd: { x: number; y: number };
+  connectionStart: number;
+  connectionEnd: number;
 }
 
 const styles = {
@@ -59,7 +59,7 @@ export default function ComparisonAnimation({
   rightValue, 
   isPlaying,
   connectionStart,
-  connectionEnd 
+  connectionEnd
 }: ComparisonAnimationProps) {
   const [symbol, setSymbol] = useState<'<' | '>' | '='>();
   
@@ -69,20 +69,32 @@ export default function ComparisonAnimation({
     else setSymbol('=');
   }, [leftValue, rightValue]);
 
-  // Get the container element
-  const containerElement = document.querySelector('.flex.flex-row.justify-center');
+  // Get the columns and their blocks
+  const leftColumn = document.querySelector('.left-column');
+  const rightColumn = document.querySelector('.right-column');
+  const leftBlocks = leftColumn?.querySelectorAll('.block');
+  const rightBlocks = rightColumn?.querySelectorAll('.block');
   
-  let midX = 0;
-  let midY = 0;
+  // Check if we have valid columns and blocks
+  if (!leftBlocks || !rightBlocks) return null;
 
-  if (containerElement) {
-    const containerRect = containerElement.getBoundingClientRect();
-    // Calculate the middle point of the container
-    midX = containerRect.width / 2;
-    midY = containerRect.height / 2;
-  }
+  // Determine if this is a valid connection
+  const isValidConnection = (
+    // Case 1: Top of first blocks connection
+    (connectionStart === 0 && connectionEnd === 0) ||
+    
+    // Case 2: Bottom of last blocks connection
+    (connectionStart === leftBlocks.length - 1 && 
+     connectionEnd === rightBlocks.length - 1) ||
+    
+    // Case 3: Single block case - both top and bottom connections
+    (leftBlocks.length === 1 && rightBlocks.length === 1 &&
+     ((connectionStart === 0 && connectionEnd === 0) || // top connection
+      (connectionStart === 0 && connectionEnd === 0)))  // bottom connection
+  );
 
-  if (!isPlaying || !symbol) return null;
+  // Only show animation if all conditions are met
+  if (!isPlaying || !symbol || !isValidConnection) return null;
 
   return (
     <motion.div
