@@ -12,17 +12,24 @@ interface Connection {
   end: number;
 }
 
+interface AnimatedConnection {
+  start: { x: number; y: number };
+  end: { x: number; y: number };
+}
+
 interface LineCanvasProps {
   isDrawingMode: boolean;
   connections: Connection[];
   setConnections: React.Dispatch<React.SetStateAction<Connection[]>>;
+  isAnimationPlaying: boolean;
 }
 
-export function LineCanvas({ isDrawingMode, connections, setConnections }: LineCanvasProps) {
+export function LineCanvas({ isDrawingMode, connections, setConnections, isAnimationPlaying }: LineCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point | null>(null);
+  const [animatedConnections, setAnimatedConnections] = useState<AnimatedConnection[]>([]);
 
   // Setup canvas dimensions and context
   const setupCanvas = (canvas: HTMLCanvasElement) => {
@@ -50,25 +57,64 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
     return { ctx, containerRect };
   };
 
-  // Draw a single connection
-  const drawConnection = (
-    ctx: CanvasRenderingContext2D, 
-    containerRect: DOMRect, 
+  // Add function to convert block positions to coordinates
+  const getConnectionCoordinates = (
     startBlock: Element, 
-    endBlock: Element
+    endBlock: Element, 
+    containerRect: DOMRect,
+    isStartTop: boolean,
+    isEndTop: boolean
   ) => {
     const startRect = startBlock.getBoundingClientRect();
     const endRect = endBlock.getBoundingClientRect();
     
-    const startX = startRect.right - containerRect.left;
-    const startY = startRect.top + (startRect.height / 2) - containerRect.top;
-    const endX = endRect.left - containerRect.left;
-    const endY = endRect.top + (endRect.height / 2) - containerRect.top;
+    return {
+      start: {
+        x: startRect.right - containerRect.left,
+        y: isStartTop 
+          ? startRect.top - containerRect.top
+          : startRect.bottom - containerRect.top
+      },
+      end: {
+        x: endRect.left - containerRect.left,
+        y: isEndTop 
+          ? endRect.top - containerRect.top
+          : endRect.bottom - containerRect.top
+      }
+    };
+  };
+
+  // Update drawConnection to include the top/bottom information
+  const drawConnection = (
+    ctx: CanvasRenderingContext2D, 
+    containerRect: DOMRect, 
+    startBlock: Element, 
+    endBlock: Element,
+    isStartTop: boolean,
+    isEndTop: boolean,
+    progress?: number
+  ) => {
+    const coords = getConnectionCoordinates(startBlock, endBlock, containerRect, isStartTop, isEndTop);
     
+    // Draw the line
     ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(endX, endY);
+    ctx.moveTo(coords.start.x, coords.start.y);
+    ctx.lineTo(coords.end.x, coords.end.y);
     ctx.stroke();
+
+    // Draw animated dot if animation is playing
+    if (isAnimationPlaying && progress !== undefined) {
+      const x = coords.start.x + (coords.end.x - coords.start.x) * progress;
+      const y = coords.start.y + (coords.end.y - coords.start.y) * progress;
+
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0cdcf7';
+      ctx.fill();
+      ctx.shadowColor = '#0cdcf7';
+      ctx.shadowBlur = 10;
+      ctx.closePath();
+    }
   };
 
   // Draw all connections
@@ -98,7 +144,10 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       const endBlock = rightBlocks[conn.end];
       
       if (startBlock && endBlock) {
-        drawConnection(ctx, containerRect, startBlock, endBlock);
+        // Draw connection from top to top
+        drawConnection(ctx, containerRect, startBlock, endBlock, true, true);
+        // Draw connection from bottom to bottom
+        drawConnection(ctx, containerRect, startBlock, endBlock, false, false);
       } else {
         console.log('Blocks not found for connection:', {
           connection: conn,
@@ -115,17 +164,17 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
     if (!column) return -1;
 
     const blocks = Array.from(column.querySelectorAll('.block'));
-    return blocks.findIndex(block => {
+    const clickedIndex = blocks.findIndex(block => {
       const rect = block.getBoundingClientRect();
       return y >= rect.top && y <= rect.bottom;
     });
 
-    // Return -1 if clicked block is not first or last
-    if (clickedIndex !== 0 && clickedIndex !== blocks.length - 1) {
-      return -1;
+    // Allow connections only from top (0) or bottom (length-1) blocks
+    if (clickedIndex === 0 || clickedIndex === blocks.length - 1) {
+      return clickedIndex;
     }
 
-    return clickedIndex;
+    return -1;
   };
 
   // Handle canvas click events
@@ -143,19 +192,26 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       setStartPoint({ x, y });
       setIsDrawing(true);
     } else if (startPoint) {
-      const startBlockIndex = findBlockIndex(startPoint.y + rect.top, true);  // Left column
-      const endBlockIndex = findBlockIndex(e.clientY, false);  // Right column
+      const startBlockIndex = findBlockIndex(startPoint.y + rect.top, true);
+      const endBlockIndex = findBlockIndex(e.clientY, false);
       
       if (startBlockIndex !== -1 && endBlockIndex !== -1) {
-        setConnections(prev => [...prev, {
-          start: startBlockIndex,
-          end: endBlockIndex
-        }]);
+        // Check if this exact connection already exists
+        const connectionExists = connections.some(conn => 
+          conn.start === startBlockIndex && conn.end === endBlockIndex
+        );
+
+        if (!connectionExists) {
+          setConnections(prev => [...prev, {
+            start: startBlockIndex,
+            end: endBlockIndex
+          }]);
+        }
       }
       
       setIsDrawing(false);
       setStartPoint(null);
-      setCurrentPoint(null);  // Clear the preview point
+      setCurrentPoint(null);
     }
   };
 
@@ -224,6 +280,54 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       setConnections([]);
     }
   }, [isDrawingMode, setConnections]);
+
+  // Add animation effect
+  useEffect(() => {
+    if (!isAnimationPlaying) return;
+
+    let progress = 0;
+    let animationFrame: number;
+
+    const animate = () => {
+      progress += 0.02; // Adjust speed here
+      if (progress <= 1) {
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const setup = setupCanvas(canvas);
+          if (setup) {
+            const { ctx, containerRect } = setup;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw all connections with current progress
+            const leftColumn = document.querySelector('.left-column');
+            const rightColumn = document.querySelector('.right-column');
+            
+            if (leftColumn && rightColumn) {
+              const leftBlocks = leftColumn.querySelectorAll('.block');
+              const rightBlocks = rightColumn.querySelectorAll('.block');
+
+              connections.forEach(conn => {
+                const startBlock = leftBlocks[conn.start];
+                const endBlock = rightBlocks[conn.end];
+                
+                if (startBlock && endBlock) {
+                  drawConnection(ctx, containerRect, startBlock, endBlock, true, true, progress);
+                  drawConnection(ctx, containerRect, startBlock, endBlock, false, false, progress);
+                }
+              });
+            }
+          }
+        }
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [isAnimationPlaying, connections]);
 
   return (
     <div style={{

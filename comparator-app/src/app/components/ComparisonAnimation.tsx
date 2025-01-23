@@ -11,6 +11,46 @@ interface ComparisonAnimationProps {
   connectionEnd: { x: number; y: number };
 }
 
+const styles = {
+  symbol: {
+    position: 'absolute' as const,
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    fontSize: '3rem',
+    fontWeight: 'bold',
+    color: '#0cdcf7',
+    textShadow: '0 0 20px rgba(12, 220, 247, 0.6)',
+    zIndex: 200,
+    pointerEvents: 'none',
+  }
+};
+
+const variants = {
+  hidden: { 
+    opacity: 0,
+    scale: 0,
+    rotate: -180
+  },
+  visible: { 
+    opacity: 1,
+    scale: 1,
+    rotate: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut"
+    }
+  },
+  exit: {
+    opacity: 0,
+    scale: 0,
+    rotate: 180,
+    transition: {
+      duration: 0.3
+    }
+  }
+};
+
 export default function ComparisonAnimation({ 
   leftValue, 
   rightValue, 
@@ -39,31 +79,6 @@ export default function ComparisonAnimation({
     midY = containerRect.height / 2;
   }
 
-  const variants = {
-    hidden: { 
-      opacity: 0,
-      scale: 0,
-      rotate: -180
-    },
-    visible: { 
-      opacity: 1,
-      scale: 1,
-      rotate: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0,
-      rotate: 180,
-      transition: {
-        duration: 0.3
-      }
-    }
-  };
-
   if (!isPlaying || !symbol) return null;
 
   return (
@@ -72,16 +87,7 @@ export default function ComparisonAnimation({
       animate="visible"
       exit="exit"
       variants={variants}
-      style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        fontSize: '5rem',
-        fontWeight: 'bold',
-        color: '#ff0088',
-        zIndex: 200,
-      }}
+      style={styles.symbol}
     >
       {symbol}
     </motion.div>
