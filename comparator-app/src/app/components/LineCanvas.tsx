@@ -232,9 +232,18 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
       transform: 'translateX(-50%)',
       width: '100%',
       maxWidth: '1100px',
-      backgroundColor: isDrawingMode ? 'rgba(255,255,255,0.1)' : 'transparent',
+      backgroundColor: isDrawingMode 
+        ? 'rgba(10, 25, 47, 0.3)' // Dark blue with transparency
+        : 'transparent',
+      border: isDrawingMode 
+        ? '1px solid rgba(12, 220, 247, 0.2)'
+        : 'none',
+      boxShadow: isDrawingMode 
+        ? 'inset 0 0 20px rgba(12, 220, 247, 0.05)'
+        : 'none',
       zIndex: 100,
       pointerEvents: isDrawingMode ? 'auto' : 'none',
+      transition: 'all 0.3s ease',
     }}>
       <canvas
         ref={canvasRef}

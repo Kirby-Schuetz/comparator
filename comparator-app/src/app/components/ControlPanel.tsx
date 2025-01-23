@@ -203,9 +203,12 @@ const ControlPanel = ({
               <motion.button
                 style={{
                   ...styles.playButton,
-                  background: isAnimationPlaying 
-                    ? 'linear-gradient(135deg, #0a9af0 0%, #0cdcf7 100%)'
-                    : 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
+                  backgroundColor: isAnimationPlaying 
+                    ? 'rgba(10, 154, 240, 0.1)'
+                    : 'rgba(12, 220, 247, 0.1)',
+                  borderColor: isAnimationPlaying
+                    ? 'rgba(10, 154, 240, 0.3)'
+                    : 'rgba(12, 220, 247, 0.3)',
                 }}
                 onClick={() => onPlayAnimation(!isAnimationPlaying)}
                 whileTap={{ scale: 0.95 }}
@@ -233,9 +236,12 @@ const ControlPanel = ({
               <motion.button
                 style={{
                   ...styles.compareButton,
-                  background: isCompareMode
-                    ? 'linear-gradient(135deg, #0a9af0 0%, #0cdcf7 100%)'
-                    : 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
+                  backgroundColor: isCompareMode
+                    ? 'rgba(10, 154, 240, 0.1)'
+                    : 'rgba(12, 220, 247, 0.1)',
+                  borderColor: isCompareMode
+                    ? 'rgba(10, 154, 240, 0.3)'
+                    : 'rgba(12, 220, 247, 0.3)',
                 }}
                 onClick={handleCompareModeClick}
                 whileTap={{ scale: 0.95 }}
@@ -246,9 +252,12 @@ const ControlPanel = ({
               <motion.button
                 style={{
                   ...styles.compareButton,
-                  background: isAutoComparatorVisible
-                    ? 'linear-gradient(135deg, #0a9af0 0%, #0cdcf7 100%)'
-                    : 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
+                  backgroundColor: isAutoComparatorVisible
+                    ? 'rgba(10, 154, 240, 0.1)'
+                    : 'rgba(12, 220, 247, 0.1)',
+                  borderColor: isAutoComparatorVisible
+                    ? 'rgba(10, 154, 240, 0.3)'
+                    : 'rgba(12, 220, 247, 0.3)',
                 }}
                 onClick={handleAutoComparatorClick}
                 whileTap={{ scale: 0.95 }}
