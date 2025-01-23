@@ -5,6 +5,7 @@ import { useState, ReactElement } from "react";
 import { useLeftBox } from "../context/left-box-context";
 import { useRightBox } from "../context/right-box-context";
 import { Column } from './Column/Column';
+import { FaPlay, FaStop } from 'react-icons/fa';
 
 // Add prop interface
 interface ControlPanelProps {
@@ -43,15 +44,44 @@ const ControlPanel = ({
     rightDispatch({ type: "setCount", count: value });
   };
 
-  // Update the click handler to only handle compare mode
+  // Update both mode handlers to manage column locks
   const handleCompareModeClick = () => {
     const newMode = !isCompareMode;
     setIsCompareMode(newMode);
     onDrawingModeChange(newMode);
+    
+    // Lock/unlock columns based on mode
+    if (newMode) {
+      setColumns(prev => ({
+        left: { ...prev.left, isLocked: true },
+        right: { ...prev.right, isLocked: true }
+      }));
+    } else if (!isAutoComparatorVisible) {
+      // Only unlock if auto comparator is also off
+      setColumns(prev => ({
+        left: { ...prev.left, isLocked: false },
+        right: { ...prev.right, isLocked: false }
+      }));
+    }
   };
 
   const handleAutoComparatorClick = () => {
+    const newAutoMode = !isAutoComparatorVisible;
     onAutoComparator(leftState.count, rightState.count);
+    
+    // Lock/unlock columns based on mode
+    if (newAutoMode) {
+      setColumns(prev => ({
+        left: { ...prev.left, isLocked: true },
+        right: { ...prev.right, isLocked: true }
+      }));
+    } else if (!isCompareMode) {
+      // Only unlock if compare mode is also off
+      setColumns(prev => ({
+        left: { ...prev.left, isLocked: false },
+        right: { ...prev.right, isLocked: false }
+      }));
+    }
   };
 
   const styles = {
@@ -122,6 +152,25 @@ const ControlPanel = ({
       color: '#fff',
       cursor: 'pointer',
       width: '100%',
+      transition: 'all 0.2s ease',
+    },
+    playButton: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
+      border: 'none',
+      color: 'white',
+      cursor: 'pointer',
+      boxShadow: '0 2px 10px rgba(12, 220, 247, 0.3)',
+      transition: 'all 0.2s ease',
+      '&:hover': {
+        transform: 'scale(1.05)',
+        boxShadow: '0 4px 15px rgba(12, 220, 247, 0.4)',
+      },
     },
   } as const;
 
@@ -150,6 +199,21 @@ const ControlPanel = ({
                 }))}
                 onCountChange={handleColumn1Change}
               />
+
+              <motion.button
+                style={{
+                  ...styles.playButton,
+                  background: isAnimationPlaying 
+                    ? 'linear-gradient(135deg, #0a9af0 0%, #0cdcf7 100%)'
+                    : 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
+                }}
+                onClick={() => onPlayAnimation(!isAnimationPlaying)}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                {isAnimationPlaying ? <FaStop /> : <FaPlay />}
+              </motion.button>
+
               <Column
                 id="right"
                 state={{
@@ -169,7 +233,9 @@ const ControlPanel = ({
               <motion.button
                 style={{
                   ...styles.compareButton,
-                  backgroundColor: isCompareMode ? '#ff0088' : '#0cdcf7',
+                  background: isCompareMode
+                    ? 'linear-gradient(135deg, #0a9af0 0%, #0cdcf7 100%)'
+                    : 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
                 }}
                 onClick={handleCompareModeClick}
                 whileTap={{ scale: 0.95 }}
@@ -180,23 +246,14 @@ const ControlPanel = ({
               <motion.button
                 style={{
                   ...styles.compareButton,
-                  backgroundColor: isAutoComparatorVisible ? '#ff0088' : '#0cdcf7',
+                  background: isAutoComparatorVisible
+                    ? 'linear-gradient(135deg, #0a9af0 0%, #0cdcf7 100%)'
+                    : 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
                 }}
                 onClick={handleAutoComparatorClick}
                 whileTap={{ scale: 0.95 }}
               >
                 {isAutoComparatorVisible ? 'Turn Off Auto Comparison' : 'Turn On Auto Comparison'}
-              </motion.button>
-
-              <motion.button
-                style={{
-                  ...styles.compareButton,
-                  backgroundColor: isAnimationPlaying ? '#ff0088' : '#0cdcf7',
-                }}
-                onClick={() => onPlayAnimation(!isAnimationPlaying)}
-                whileTap={{ scale: 0.95 }}
-              >
-                {isAnimationPlaying ? 'Stop Animation' : 'Play Animation'}
               </motion.button>
             </div>
           </motion.div>

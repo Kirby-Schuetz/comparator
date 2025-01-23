@@ -42,8 +42,10 @@ export function LineCanvas({ isDrawingMode, connections, setConnections }: LineC
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    ctx.strokeStyle = '#666';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#0cdcf7';
+    ctx.shadowColor = '#0cdcf7';
+    ctx.shadowBlur = 10;
+    ctx.lineWidth = 3;
 
     return { ctx, containerRect };
   };
