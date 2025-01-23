@@ -132,28 +132,21 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
 
     const leftBlocks = leftColumn.querySelectorAll('.block');
     const rightBlocks = rightColumn.querySelectorAll('.block');
-    
-    console.log('Connections to draw:', connections);
-    console.log('Blocks found:', { 
-      leftCount: leftBlocks.length, 
-      rightCount: rightBlocks.length 
-    });
 
     connections.forEach(conn => {
       const startBlock = leftBlocks[conn.start];
       const endBlock = rightBlocks[conn.end];
       
       if (startBlock && endBlock) {
-        // Draw connection from top to top
-        drawConnection(ctx, containerRect, startBlock, endBlock, true, true);
-        // Draw connection from bottom to bottom
-        drawConnection(ctx, containerRect, startBlock, endBlock, false, false);
-      } else {
-        console.log('Blocks not found for connection:', {
-          connection: conn,
-          startBlock: !!startBlock,
-          endBlock: !!endBlock
-        });
+        // If both blocks are at the top (index 0), connect their tops
+        if (conn.start === 0 && conn.end === 0) {
+          drawConnection(ctx, containerRect, startBlock, endBlock, true, true);
+        }
+        
+        // If both blocks are at the bottom (last index), connect their bottoms
+        if (conn.start === leftBlocks.length - 1 && conn.end === rightBlocks.length - 1) {
+          drawConnection(ctx, containerRect, startBlock, endBlock, false, false);
+        }
       }
     });
   };
