@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import ControlPanel from "./components/ControlPanel";
 // import Blocks from "./components/Blocks";
 import { LeftBoxProvider } from "./context/left-box-context";
