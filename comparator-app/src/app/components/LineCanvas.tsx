@@ -12,11 +12,6 @@ interface Connection {
   end: number;
 }
 
-interface AnimatedConnection {
-  start: { x: number; y: number };
-  end: { x: number; y: number };
-}
-
 interface LineCanvasProps {
   isDrawingMode: boolean;
   connections: Connection[];
@@ -29,7 +24,6 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point | null>(null);
-  const [animatedConnections, setAnimatedConnections] = useState<AnimatedConnection[]>([]);
 
   // Setup canvas dimensions and context
   const setupCanvas = (canvas: HTMLCanvasElement) => {

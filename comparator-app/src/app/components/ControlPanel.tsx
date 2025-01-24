@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, ReactElement } from "react";
 import { useLeftBox } from "../context/left-box-context";
 import { useRightBox } from "../context/right-box-context";
-import { Column } from './Column/Column';
-import { FaPlay, FaStop } from 'react-icons/fa';
+import { Column } from './Column';
+import { PlayIcon, StopIcon } from '@heroicons/react/24/solid';
 
 // Add prop interface
 interface ControlPanelProps {
@@ -239,7 +239,6 @@ const ControlPanel = ({
           >
             <div style={styles.controlContent}>
               <Column
-                id="left"
                 state={{
                   isLocked: columns.left.isLocked,
                   count: leftState.count
@@ -266,11 +265,13 @@ const ControlPanel = ({
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.05 }}
               >
-                {isAnimationPlaying ? <FaStop /> : <FaPlay />}
+                {isAnimationPlaying ? 
+                  <StopIcon className="w-4 h-4" /> : 
+                  <PlayIcon className="w-4 h-4" />
+                }
               </motion.button>
 
               <Column
-                id="right"
                 state={{
                   isLocked: columns.right.isLocked,
                   count: rightState.count

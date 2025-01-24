@@ -10,7 +10,7 @@ export default function ColumnContainer({ isAutoComparatorVisible }: ColumnConta
   const columnClasses = "w-[40%] relative";
   
   return (
-    <div className="flex flex-row justify-center items-center h-[650px] gap-8 p-8 bg-gray-100 relative">
+    <div className="flex flex-row justify-center items-center h-[650px] gap-8 p-8 relative">
       <div className={`left-column ${columnClasses}`}>
         <LeftColumn isAutoComparatorVisible={isAutoComparatorVisible} />
       </div>

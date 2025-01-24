@@ -2,7 +2,6 @@ import { ChangeEvent } from "react";
 import { motion } from "framer-motion";
 
 interface ColumnProps {
-  id: string;
   state: {
     isLocked: boolean;
     count: number;
@@ -54,7 +53,7 @@ const styles = {
     color: '#0cdcf7',
     cursor: 'pointer',
     fontSize: '10px',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: '1px',
     transition: 'all 0.2s ease',
     '&:hover': {
@@ -64,7 +63,7 @@ const styles = {
   },
 };
 
-export function Column({ id, state, label, onLockToggle, onCountChange }: ColumnProps) {
+export function Column({ state, label, onLockToggle, onCountChange }: ColumnProps) {
   return (
     <div style={styles.container}>
       <motion.span 

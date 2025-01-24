@@ -25,7 +25,7 @@ const styles = {
       0 0 60px rgba(100, 200, 255, 0.4)
     `,
     zIndex: 200,
-    pointerEvents: 'none',
+    pointerEvents: 'none' as const,
   }
 };
 
