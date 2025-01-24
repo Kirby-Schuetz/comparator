@@ -27,7 +27,7 @@ const ControlPanel = ({
   onReset,
   onClearConnections
 }: ControlPanelProps): ReactElement => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [isCompareMode, setIsCompareMode] = useState(false);
   const { leftState, leftDispatch } = useLeftBox();
   const { rightState, rightDispatch } = useRightBox();

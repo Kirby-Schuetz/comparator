@@ -7,16 +7,11 @@ interface ComparisonAnimationProps {
   leftValue: number;
   rightValue: number;
   isPlaying: boolean;
-  connectionStart: number;
-  connectionEnd: number;
 }
 
 const styles = {
   symbol: {
     position: 'absolute' as const,
-    left: '50%',
-    top: '50%',
-    transform: 'translate(-50%, -50%)',
     fontSize: '8rem',
     fontWeight: '800',
     color: '#64c8ff',
@@ -58,43 +53,39 @@ export default function ComparisonAnimation({
   leftValue, 
   rightValue, 
   isPlaying,
-  connectionStart,
-  connectionEnd
 }: ComparisonAnimationProps) {
   const [symbol, setSymbol] = useState<'<' | '>' | '='>();
+  const [position, setPosition] = useState({ top: '50%' });
   
   useEffect(() => {
     if (leftValue < rightValue) setSymbol('<');
     else if (leftValue > rightValue) setSymbol('>');
     else setSymbol('=');
+
+    // Find the boxes containers
+    const leftContainer = document.querySelector('.boxes-container');
+    const rightContainer = document.querySelector('.boxes-container.right');
+
+    if (leftContainer && rightContainer) {
+      const leftRect = leftContainer.getBoundingClientRect();
+      const rightRect = rightContainer.getBoundingClientRect();
+      
+      // Calculate vertical center of the stacks
+      const leftCenter = leftRect.top + (leftRect.height / 2);
+      const rightCenter = rightRect.top + (rightRect.height / 2);
+      const centerY = (leftCenter + rightCenter) / 2;
+
+      // Convert to percentage relative to container
+      const container = document.querySelector('main');
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const topPercentage = ((centerY - containerRect.top) / containerRect.height) * 100;
+        setPosition({ top: `${topPercentage}%` });
+      }
+    }
   }, [leftValue, rightValue]);
 
-  // Get the columns and their blocks
-  const leftColumn = document.querySelector('.left-column');
-  const rightColumn = document.querySelector('.right-column');
-  const leftBlocks = leftColumn?.querySelectorAll('.block');
-  const rightBlocks = rightColumn?.querySelectorAll('.block');
-  
-  // Check if we have valid columns and blocks
-  if (!leftBlocks || !rightBlocks) return null;
-
-  // Determine if this is a valid connection
-  const isValidConnection = (
-    // Case 1: Top of first blocks connection
-    (connectionStart === 0 && connectionEnd === 0) ||
-    
-    // Case 2: Bottom of last blocks connection
-    (connectionStart === leftBlocks.length - 1 && 
-     connectionEnd === rightBlocks.length - 1) ||
-    
-    // Case 3: Single block case - both top and bottom connections
-    (leftBlocks.length === 1 && rightBlocks.length === 1 &&
-     ((connectionStart === 0 && connectionEnd === 0) || // top connection
-      (connectionStart === 0 && connectionEnd === 0)))  // bottom connection
-  );
-
-  // Only show animation if all conditions are met
-  if (!isPlaying || !symbol || !isValidConnection) return null;
+  if (!isPlaying || !symbol) return null;
 
   return (
     <motion.div
@@ -102,7 +93,13 @@ export default function ComparisonAnimation({
       animate="visible"
       exit="exit"
       variants={variants}
-      style={styles.symbol}
+      style={{
+        ...styles.symbol,
+        position: 'absolute',
+        top: position.top,
+        left: '50%',
+        transform: 'translate(-50%, -50%)'
+      }}
     >
       {symbol}
     </motion.div>
