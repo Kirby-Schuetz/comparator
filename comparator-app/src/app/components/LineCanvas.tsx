@@ -43,8 +43,8 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    ctx.strokeStyle = '#0cdcf7';
-    ctx.shadowColor = '#0cdcf7';
+    ctx.strokeStyle = '#788CE3';  // Royal
+    ctx.shadowColor = '#788CE3';  // Royal
     ctx.shadowBlur = 10;
     ctx.lineWidth = 3;
 
@@ -103,9 +103,9 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
 
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#0cdcf7';
+      ctx.fillStyle = '#788CE3';  // Royal
       ctx.fill();
-      ctx.shadowColor = '#0cdcf7';
+      ctx.shadowColor = '#788CE3';  // Royal
       ctx.shadowBlur = 10;
       ctx.closePath();
     }
@@ -308,13 +308,13 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
       width: '100%',
       maxWidth: '1100px',
       backgroundColor: isDrawingMode 
-        ? 'rgba(10, 25, 47, 0.3)' // Dark blue with transparency
+        ? 'rgba(23, 36, 63, 0.3)' // Midnight with opacity
         : 'transparent',
       border: isDrawingMode 
-        ? '1px solid rgba(12, 220, 247, 0.2)'
+        ? '1px solid rgba(120, 140, 227, 0.2)'  // Royal with opacity
         : 'none',
       boxShadow: isDrawingMode 
-        ? 'inset 0 0 20px rgba(12, 220, 247, 0.05)'
+        ? 'inset 0 0 20px rgba(120, 140, 227, 0.05)'  // Royal with opacity
         : 'none',
       zIndex: 100,
       pointerEvents: isDrawingMode ? 'auto' : 'none',

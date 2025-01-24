@@ -117,32 +117,21 @@ const ControlPanel = ({
     box: {
       width: "100%",
       height: "auto",
-      backgroundColor: "#95a5a6",
+      backgroundColor: 'rgba(23, 36, 63, 0.9)',  // Midnight with opacity
       borderRadius: "10px",
       padding: "20px",
       display: "flex",
       flexDirection: "column",
       gap: "20px",
-    },
-    button: {
-      backgroundColor: "#0cdcf7",
-      borderRadius: "10px",
-      padding: "10px 20px",
-      color: "#0f1115",
-      width: "100%",
+      border: '2px solid rgba(120, 140, 227, 0.2)',  // Royal with opacity
     },
     controlContent: {
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
+      alignItems: "center",
       gap: "20px",
       width: "100%",
-    },
-    column: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "10px",
-      flex: 1,
     },
     buttonContainer: {
       display: "flex",
@@ -150,80 +139,130 @@ const ControlPanel = ({
       gap: "10px",
       width: "100%",
     },
-    label: {
-      fontSize: "14px",
-      fontWeight: "bold",
-    },
-    input: {
-      padding: '8px',
-      borderRadius: '5px',
-      borderWidth: '1px',
-      borderStyle: 'solid',
-      borderColor: '#ccc',
-      width: '80px',
-    },
-    buttonStyle: {
-      padding: '8px',
-      borderRadius: '5px',
-      borderWidth: '0',
-      borderStyle: 'none',
-      cursor: 'pointer',
-      width: '100%',
-    },
     compareButton: {
-      padding: '15px',
-      borderRadius: '8px',
-      borderWidth: '1px',
+      padding: '15px 20px',
+      borderRadius: '10px',
       borderStyle: 'solid',
-      borderColor: 'rgba(12, 220, 247, 0.2)',
-      backgroundColor: 'rgba(10, 25, 47, 0.3)',
-      color: '#fff',
+      borderWidth: '2px',
+      borderColor: 'rgba(120, 140, 227, 0.3)',  // Royal with opacity
+      color: '#ECE9DF',  // Sand
       cursor: 'pointer',
       width: '100%',
       transition: 'all 0.2s ease',
-      marginBottom: '5px',
+      backgroundColor: 'rgba(120, 140, 227, 0.15)',  // Royal with opacity
+      backdropFilter: 'blur(5px)',
+      textTransform: 'uppercase' as const,
+      letterSpacing: '1.5px',
+      fontSize: '14px',
+      fontWeight: '800',
+      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+      '&:hover': {
+        backgroundColor: 'rgba(120, 140, 227, 0.25)',  // Royal with opacity
+        boxShadow: '0 0 20px rgba(120, 140, 227, 0.2)',  // Royal with opacity
+        borderColor: 'rgba(120, 140, 227, 0.4)',  // Royal with opacity
+      },
     },
     playButton: {
-      width: '40px',
-      height: '40px',
+      width: '80px',
+      height: '80px',
       borderRadius: '50%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #0cdcf7 0%, #0a9af0 100%)',
-      borderWidth: '0',
-      borderStyle: 'none',
-      color: 'white',
+      backgroundColor: 'rgba(120, 140, 227, 0.1)',  // Royal with opacity
+      borderStyle: 'solid',
+      borderWidth: '2px',
+      borderColor: 'rgba(120, 140, 227, 0.3)',  // Royal with opacity
+      color: '#788CE3',  // Royal
       cursor: 'pointer',
-      boxShadow: '0 2px 10px rgba(12, 220, 247, 0.3)',
       transition: 'all 0.2s ease',
+      boxShadow: '0 0 15px rgba(120, 140, 227, 0.1)',  // Royal with opacity
+      fontSize: '32px',
       '&:hover': {
-        transform: 'scale(1.05)',
-        boxShadow: '0 4px 15px rgba(12, 220, 247, 0.4)',
+        backgroundColor: 'rgba(120, 140, 227, 0.15)',  // Royal with opacity
+        boxShadow: '0 0 25px rgba(120, 140, 227, 0.2)',  // Royal with opacity
+        borderColor: 'rgba(120, 140, 227, 0.4)',  // Royal with opacity
+      },
+    },
+    label: {
+      fontSize: '14px',
+      fontWeight: "bold",
+      color: '#788CE3',  // Royal
+      textTransform: 'uppercase' as const,
+      letterSpacing: '1.5px',
+      textShadow: '0 0 10px rgba(120, 140, 227, 0.2)',  // Royal with opacity
+    },
+    input: {
+      padding: '30px',
+      borderRadius: '20px',
+      borderWidth: '3px',
+      borderStyle: 'solid',
+      borderColor: 'rgba(120, 140, 227, 0.3)',  // Royal with opacity
+      backgroundColor: 'rgba(23, 36, 63, 0.7)',  // Midnight with opacity
+      color: '#788CE3',  // Royal
+      width: '100%',
+      transition: 'all 0.2s ease',
+      fontSize: '84px',
+      fontWeight: '800',
+      textAlign: 'center' as const,
+      minWidth: '180px',
+      height: '168px',
+      lineHeight: '1',
+      '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
+        WebkitAppearance: 'none',
+        margin: 0,
+      },
+      '&[type=number]': {
+        MozAppearance: 'textfield',
+      },
+      '&:focus': {
+        outline: 'none',
+        borderColor: '#788CE3',  // Royal
+        boxShadow: '0 0 30px rgba(120, 140, 227, 0.2)',  // Increased glow
+      },
+      '&:hover': {
+        borderColor: 'rgba(120, 140, 227, 0.4)',
+      },
+    },
+    button: {
+      padding: '10px 20px',
+      borderRadius: '10px',
+      borderWidth: '2px',
+      borderStyle: 'solid',
+      borderColor: 'rgba(120, 140, 227, 0.3)',  // Royal with opacity
+      backgroundColor: 'rgba(120, 140, 227, 0.1)',  // Royal with opacity
+      color: '#788CE3',  // Royal
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      textTransform: 'uppercase' as const,
+      letterSpacing: '1.5px',
+      fontSize: '15px',
+      fontWeight: 'bold' as const,
+      textShadow: '0 0 10px rgba(120, 140, 227, 0.2)',  // Royal with opacity
+      '&:hover': {
+        backgroundColor: 'rgba(120, 140, 227, 0.15)',  // Royal with opacity
+        boxShadow: '0 0 20px rgba(120, 140, 227, 0.2)',  // Royal with opacity
+        borderColor: 'rgba(120, 140, 227, 0.4)',  // Royal with opacity
       },
     },
     activeButton: {
-      backgroundColor: 'rgba(100, 200, 255, 0.25)',
-      borderWidth: '1px',
-      borderStyle: 'solid',
-      borderColor: 'rgba(100, 200, 255, 0.5)',
-      color: '#64c8ff',
+      backgroundColor: 'rgba(120, 140, 227, 0.25)',  // Royal with opacity
+      borderColor: 'rgba(120, 140, 227, 0.5)',  // Royal with opacity
+      color: '#788CE3',  // Royal
       fontWeight: '800',
-      textShadow: '0 0 10px rgba(100, 200, 255, 0.3)',
+      textShadow: '0 0 10px rgba(120, 140, 227, 0.3)',  // Royal with opacity
     },
     resetButton: {
-      backgroundColor: 'rgba(255, 100, 100, 0.15)',
-      borderWidth: '1px',
-      borderStyle: 'solid',
-      borderColor: 'rgba(255, 100, 100, 0.4)',
-      color: '#fff',
+      backgroundColor: 'rgba(223, 244, 120, 0.15)',  // Neon with opacity
+      borderColor: 'rgba(223, 244, 120, 0.4)',  // Neon with opacity
+      color: '#ECE9DF',  // Sand
       fontWeight: '800',
       textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
       '&:hover': {
-        backgroundColor: 'rgba(255, 100, 100, 0.25)',
-        borderColor: 'rgba(255, 100, 100, 0.5)',
+        backgroundColor: 'rgba(223, 244, 120, 0.25)',  // Neon with opacity
+        borderColor: 'rgba(223, 244, 120, 0.5)',  // Neon with opacity
       },
-    }
+    },
   } as const;
 
   return (

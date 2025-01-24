@@ -25,11 +25,11 @@ const styles = {
       position: 'absolute' as const,
       width: '100%',
       height: '100%',
-      backgroundColor: '#64ffda',
-      boxShadow: '0 0 10px rgba(100, 255, 218, 0.5)',
+      backgroundColor: '#788CE3',  // Royal
+      boxShadow: '0 0 10px rgba(120, 140, 227, 0.5)',  // Royal with opacity
       borderWidth: '1px',
       borderStyle: 'solid',
-      borderColor: 'rgba(100, 255, 218, 0.8)',
+      borderColor: 'rgba(120, 140, 227, 0.8)',  // Royal with opacity
     },
     '&:hover': {
       transform: 'rotateX(-20deg) rotateY(25deg) scale(1.05)',

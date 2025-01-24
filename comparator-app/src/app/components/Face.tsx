@@ -21,34 +21,34 @@ const faceStyles = {
     height: 'var(--block-size)',
     borderWidth: '1px',
     borderStyle: 'solid',
-    borderColor: `rgba(12, 220, 247, 0.2)`,
-    boxShadow: 'inset 0 0 10px rgba(12, 220, 247, 0.1)',
+    borderColor: `rgba(120, 140, 227, 0.2)`,
+    boxShadow: 'inset 0 0 10px rgba(120, 140, 227, 0.1)',
     transition: 'all 0.2s ease',
   },
   transforms: {
     [FacePosition.FRONT]: {
       transform: 'translateZ(var(--block-half))',
-      background: `linear-gradient(135deg, rgba(12, 220, 247, 0.8) 0%, ${CONTROLS.COLORS.ACTIVE} 100%)`,
+      background: `linear-gradient(135deg, rgba(146, 186, 213, 0.8) 0%, ${CONTROLS.COLORS.ACTIVE} 100%)`,
     },
     [FacePosition.BACK]:   { 
       transform: 'translateZ(calc(var(--block-half) * -1))', 
-      background: 'linear-gradient(135deg, rgba(10, 154, 240, 0.6) 0%, rgba(12, 220, 247, 0.6) 100%)',
+      background: 'linear-gradient(135deg, rgba(120, 140, 227, 0.6) 0%, rgba(146, 186, 213, 0.6) 100%)',
     },
     [FacePosition.RIGHT]:  { 
       transform: 'rotateY(90deg) translateZ(var(--block-half))',  
-      background: 'linear-gradient(135deg, rgba(12, 220, 247, 0.7) 0%, rgba(10, 154, 240, 0.7) 100%)',
+      background: 'linear-gradient(135deg, rgba(146, 186, 213, 0.7) 0%, rgba(120, 140, 227, 0.7) 100%)',
     },
     [FacePosition.LEFT]:   { 
       transform: 'rotateY(-90deg) translateZ(var(--block-half))', 
-      background: 'linear-gradient(135deg, rgba(12, 220, 247, 0.7) 0%, rgba(10, 154, 240, 0.7) 100%)',
+      background: 'linear-gradient(135deg, rgba(146, 186, 213, 0.7) 0%, rgba(120, 140, 227, 0.7) 100%)',
     },
     [FacePosition.TOP]:    { 
       transform: 'rotateX(90deg) translateZ(var(--block-half))',  
-      background: 'linear-gradient(135deg, rgba(12, 220, 247, 0.9) 0%, rgba(10, 154, 240, 0.9) 100%)',
+      background: 'linear-gradient(135deg, rgba(146, 186, 213, 0.9) 0%, rgba(120, 140, 227, 0.9) 100%)',
     },
     [FacePosition.BOTTOM]: { 
       transform: 'rotateX(-90deg) translateZ(var(--block-half))', 
-      background: 'linear-gradient(135deg, rgba(10, 154, 240, 0.6) 0%, rgba(12, 220, 247, 0.6) 100%)',
+      background: 'linear-gradient(135deg, rgba(120, 140, 227, 0.6) 0%, rgba(146, 186, 213, 0.6) 100%)',
     },
   },
 } as const;
