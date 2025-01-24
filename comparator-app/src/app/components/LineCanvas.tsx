@@ -117,7 +117,7 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
     }
   };
 
-  // Draw all connections
+  // Update the drawConnections function to handle animation state
   const drawConnections = (ctx: CanvasRenderingContext2D, containerRect: DOMRect) => {
     // Clear the canvas before redrawing
     ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
@@ -138,14 +138,14 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
       const endBlock = rightBlocks[conn.end];
       
       if (startBlock && endBlock) {
-        // If both blocks are at the top (index 0), connect their tops
+        // Top connections for first blocks
         if (conn.start === 0 && conn.end === 0) {
-          drawConnection(ctx, containerRect, startBlock, endBlock, true, true);
+          drawConnection(ctx, containerRect, startBlock, endBlock, true, true, isAnimationPlaying ? 1 : undefined);
         }
         
-        // If both blocks are at the bottom (last index), connect their bottoms
+        // Bottom connections for last blocks
         if (conn.start === leftBlocks.length - 1 && conn.end === rightBlocks.length - 1) {
-          drawConnection(ctx, containerRect, startBlock, endBlock, false, false);
+          drawConnection(ctx, containerRect, startBlock, endBlock, false, false, isAnimationPlaying ? 1 : undefined);
         }
       }
     });
@@ -267,16 +267,19 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
     };
   }, [connections, isDrawing, startPoint, currentPoint]);
 
-  // Add effect to clear connections when drawing mode is turned off
+  // Update the animation effect to maintain connections
   useEffect(() => {
-    if (!isDrawingMode) {
-      setConnections([]);
+    if (!isAnimationPlaying) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const setup = setupCanvas(canvas);
+      if (!setup) return;
+      
+      const { ctx, containerRect } = setup;
+      drawConnections(ctx, containerRect);
+      return;
     }
-  }, [isDrawingMode, setConnections]);
-
-  // Add animation effect
-  useEffect(() => {
-    if (!isAnimationPlaying) return;
 
     let progress = 0;
     let animationFrame: number;
@@ -289,26 +292,7 @@ export function LineCanvas({ isDrawingMode, connections, setConnections, isAnima
           const setup = setupCanvas(canvas);
           if (setup) {
             const { ctx, containerRect } = setup;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw all connections with current progress
-            const leftColumn = document.querySelector('.left-column');
-            const rightColumn = document.querySelector('.right-column');
-            
-            if (leftColumn && rightColumn) {
-              const leftBlocks = leftColumn.querySelectorAll('.block');
-              const rightBlocks = rightColumn.querySelectorAll('.block');
-
-              connections.forEach(conn => {
-                const startBlock = leftBlocks[conn.start];
-                const endBlock = rightBlocks[conn.end];
-                
-                if (startBlock && endBlock) {
-                  drawConnection(ctx, containerRect, startBlock, endBlock, true, true, progress);
-                  drawConnection(ctx, containerRect, startBlock, endBlock, false, false, progress);
-                }
-              });
-            }
+            drawConnections(ctx, containerRect);
           }
         }
         animationFrame = requestAnimationFrame(animate);

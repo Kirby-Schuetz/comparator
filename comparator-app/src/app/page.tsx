@@ -82,6 +82,7 @@ export default function Home() {
               isDrawingMode={isDrawingMode && !isAnimationPlaying}
               connections={connections}
               setConnections={setConnections}
+              isAnimationPlaying={isAnimationPlaying}
             />
             
             <ComparisonAnimationWrapper 

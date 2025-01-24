@@ -171,14 +171,17 @@ const ControlPanel = ({
       width: '100%',
     },
     compareButton: {
-      padding: '8px',
-      borderRadius: '5px',
-      borderWidth: '0',
-      borderStyle: 'none',
+      padding: '15px',
+      borderRadius: '8px',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: 'rgba(12, 220, 247, 0.2)',
+      backgroundColor: 'rgba(10, 25, 47, 0.3)',
       color: '#fff',
       cursor: 'pointer',
       width: '100%',
       transition: 'all 0.2s ease',
+      marginBottom: '5px',
     },
     playButton: {
       width: '40px',
@@ -220,7 +223,7 @@ const ControlPanel = ({
         backgroundColor: 'rgba(255, 100, 100, 0.25)',
         borderColor: 'rgba(255, 100, 100, 0.5)',
       },
-    },
+    }
   } as const;
 
   return (
