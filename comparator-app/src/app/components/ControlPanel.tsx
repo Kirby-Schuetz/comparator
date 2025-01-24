@@ -15,6 +15,7 @@ interface ControlPanelProps {
   onPlayAnimation: (isPlaying: boolean) => void;
   isAnimationPlaying: boolean;
   onReset: () => void;
+  onClearConnections: () => void;
 }
 
 const ControlPanel = ({ 
@@ -23,7 +24,8 @@ const ControlPanel = ({
   isAutoComparatorVisible,
   onPlayAnimation,
   isAnimationPlaying,
-  onReset
+  onReset,
+  onClearConnections
 }: ControlPanelProps): ReactElement => {
   const [isVisible, setIsVisible] = useState(true);
   const [isCompareMode, setIsCompareMode] = useState(false);
@@ -58,12 +60,17 @@ const ControlPanel = ({
         left: { ...prev.left, isLocked: true },
         right: { ...prev.right, isLocked: true }
       }));
-    } else if (!isAutoComparatorVisible) {
-      // Only unlock if auto comparator is also off
-      setColumns(prev => ({
-        left: { ...prev.left, isLocked: false },
-        right: { ...prev.right, isLocked: false }
-      }));
+    } else {
+      // Clear connections when exiting compare mode
+      onClearConnections();
+      
+      if (!isAutoComparatorVisible) {
+        // Only unlock if auto comparator is also off
+        setColumns(prev => ({
+          left: { ...prev.left, isLocked: false },
+          right: { ...prev.right, isLocked: false }
+        }));
+      }
     }
   };
 

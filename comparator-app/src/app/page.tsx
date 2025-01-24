@@ -51,33 +51,14 @@ export default function Home() {
     // Turn off auto comparator if on
     setIsAutoComparatorVisible(false);
   };
+
+  const handleClearConnections = () => {
+    setConnections([]);
+  };
   
   return (
-    <div className="flex flex-col items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 w-full max-w-5xl">
-        <div className="flex left w-full">
-          <div 
-            style={{
-              backgroundColor: 'rgba(223, 244, 120, 0.15)',
-              borderColor: 'rgba(223, 244, 120, 0.4)',
-              borderWidth: '2px',
-              borderStyle: 'solid',
-              borderRadius: '10px',
-              padding: '15px 20px',
-            }}
-          >
-            <h1 
-              className="text-4xl font-bold"
-              style={{
-                color: '#ECE9DF',
-                fontWeight: 800,
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-              }}
-            >
-              COMPARATOR
-            </h1>
-          </div>
-        </div>
+    <div className="flex flex-col items-center h-screen p-4 sm:p-8 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-4 w-full max-w-5xl">
         <LeftBoxProvider>
           <RightBoxProvider>
             <ColumnContainer isAutoComparatorVisible={isAutoComparatorVisible} />
@@ -89,6 +70,7 @@ export default function Home() {
                 onPlayAnimation={setIsAnimationPlaying}
                 isAnimationPlaying={isAnimationPlaying}
                 onReset={handleReset}
+                onClearConnections={handleClearConnections}
               />
             </div>
             <LineCanvas 
