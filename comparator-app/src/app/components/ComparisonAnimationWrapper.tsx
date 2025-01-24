@@ -13,6 +13,7 @@ export default function ComparisonAnimationWrapper({
     const { leftState } = useLeftBox();
     const { rightState } = useRightBox();
   
+    // Only show one animation in the center
     return (
       <>
         {connections.map((connection, index) => (
@@ -21,8 +22,6 @@ export default function ComparisonAnimationWrapper({
             leftValue={leftState.count}
             rightValue={rightState.count}
             isPlaying={isAnimationPlaying}
-            connectionStart={connection.start}
-            connectionEnd={connection.end}
           />
         ))}
       </>
